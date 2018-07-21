@@ -1,0 +1,74 @@
+version: 1.0
+deliver_type: official
+owner: master
+services:
+  mysql-demo:
+    image: mysql
+    volumes:
+    - /docker/db/demo-db:/var/demo/mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=cmc
+    - MYSQL_USER=demo
+    - MYSQL_PASSWORD=Mypass1!
+    deploy:
+      placement:
+        constraints:
+        - node.name == demo-node1
+      deploy_policy: on-absence
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+    - 9411:9411
+    volumes:
+    - /docker/db/demo-db:/var/demo/mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=root
+    deploy:
+      placement:
+        constraints:
+        - node.name == demo-node1
+      deploy_policy: on-absence
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+  demo:
+    image: mctree/demo
+    build: ./Dockerfile-demo
+    volumes:
+    - /docker/demo:/var/demo/
+    environment:
+    - VERSION=0.0.1
+    extra_hosts:
+    - db.jarvisqh.cn:demo-node1
+    - zipkin.jarvisqh.cn:50.31.209.229
+    links:
+    - mysql-demo:db.jarvisqh.cn
+    depends_on:
+    - mysql-demo
+    - zipkin
+    deploy:
+      deploy_policy: rolling-update
+      placement:
+        constraints:
+        - node.name == demo-node1
+        - node.labels.site == Ki
+      replicas: 2
+nodes:
+  demo-node1:
+    ip: 39.104.164.56
+    username: root
+    password: 12345ddD
+    docker_port: 6066
+    labels:
+    - site=Ki
+  demo-node2:
+    ip: 39.104.164.56
+    username: root
+    password: 12345ddD
+    docker_port: 6066
+    labels:
+    - site=Li

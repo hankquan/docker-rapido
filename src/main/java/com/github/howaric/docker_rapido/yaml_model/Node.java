@@ -25,6 +25,22 @@ public class Node {
 	private Integer docker_port;
 	private List<String> labels;
 
+	private static final String endPointTemplate = "tcp://%s:%s";
+
+	public boolean hasLabel(String key, String value) {
+		if (labels == null) {
+			return false;
+		}
+		if (labels.contains(key + "=" + value)) {
+			return true;
+		}
+		return false;
+	}
+
+	public String getDockerEndPoint() {
+		return String.format(endPointTemplate, ip, docker_port);
+	}
+
 	public String getIp() {
 		return ip;
 	}

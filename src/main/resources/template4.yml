@@ -21,7 +21,7 @@ services:
       replicas: 1
   demo:
     image: mctree/demo
-    build: ./Dockerfile-demo
+    build: D:\works\temp
     volumes:
     - /docker/demo:/var/demo/
     environment:
@@ -38,25 +38,8 @@ services:
       deploy_policy: rolling-update
       placement:
         constraints:
-        - node.name == demo-node1
-        - node.labels.site == Ki
+        - node.labels.site == Li
       replicas: 2
-  zipkin:
-    image: openzipkin/zipkin
-    ports:
-    - 9411:9411
-    volumes:
-    - /docker/db/demo-db:/var/demo/mysql
-    environment:
-    - MYSQL_ROOT_PASSWORD=root
-    deploy:
-      placement:
-        constraints:
-        - node.name == demo-node1
-      deploy_policy: on-absence
-      restart_policy:
-        condition: on-failure
-      replicas: 1
 nodes:
   demo-node1:
     ip: 39.104.164.56

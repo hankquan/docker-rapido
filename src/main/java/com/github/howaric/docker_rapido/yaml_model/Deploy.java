@@ -9,7 +9,7 @@ public class Deploy {
 	private Placement placement;
 
 	/**
-	 * options: rolling-update, force-update, on-absence
+	 * options: rolling-update, force-update, on-absence(default)
 	 */
 	@NotBlank(message = "deploy_policy must be specified")
 	private String deploy_policy;

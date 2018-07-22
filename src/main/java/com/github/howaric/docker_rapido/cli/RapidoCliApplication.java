@@ -15,17 +15,16 @@ public class RapidoCliApplication {
 
 	private static Logger logger = LoggerFactory.getLogger(DockerRapidoApplication.class);
 
-	public static int run(CliOptions cliOptions) {
+	public static void run(CliOptions cliOptions) {
 		// String templateFilePath = cliOptions.getTemplateFilePath();
 		// validate
-		File templateFile = readTemplateFile("classpath:template3.yml");
+		File templateFile = readTemplateFile("classpath:template4.yml");
 		if (templateFile == null) {
-			return 1;
+			return;
 		}
 		List<String> imageTags = cliOptions.getImageTag();
 		RapidoEngine rapidoEngine = new RapidoEngine(templateFile, imageTags);
 		rapidoEngine.startRapido();
-		return 0;
 	}
 
 	private static File readTemplateFile(String path) {

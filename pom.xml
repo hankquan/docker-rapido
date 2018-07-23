@@ -54,6 +54,11 @@
 			<artifactId>docker-java</artifactId>
 			<version>3.0.14</version>
 		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>

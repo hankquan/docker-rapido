@@ -6,7 +6,7 @@ remote_docker: tcp://39.104.164.56:6066
 services:
   demo:
     image: demo/test
-    build: C:\work\sdte\local
+    build: C:\work\local
     ports:
     - 9090
     environment:

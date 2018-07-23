@@ -30,7 +30,7 @@ public class ServiceTaskHandler {
     }
 
     public void runTask() {
-        logger.info("Get job");
+        logger.info("Get service task: {}, to build image-tag: {}, rapido will deploy this service to nodes: {}", serviceName, targetNodes);
         // build image if need
         Service service = rapidoTemplate.getServices().get(serviceName);
         String image = service.getImage();
@@ -38,13 +38,16 @@ public class ServiceTaskHandler {
         if (imageTag != null) {
             DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
             imageNameWithRepoAndTag = imageNameWithRepoAndTag + ":" + imageTag;
+            logger.info("Start to build image: {}", imageNameWithRepoAndTag);
             String imageId = optDocker.buildImage(service.getBuild(), imageNameWithRepoAndTag);
-            logger.info("Build successfully, imageId is {}", imageId);
+            logger.info("Building successfully, imageId is {}", imageId);
         }
+
+        logger.info("Rapido will use image {} to create containers of service {}", imageNameWithRepoAndTag, serviceName);
 
         // go to each node and do operation
         DeployPolicy deployPolicy = service.getDeploy().getDeployPolicy();
-
+        logger.info("Deploy policy is {}", deployPolicy.name().toLowerCase());
         // rolling-update 起新的，删除之前的。。。
         // on-absent 存在跳过，不存在启动
         for (Node node : targetNodes) {

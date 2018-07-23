@@ -5,7 +5,7 @@ import com.github.howaric.docker_rapido.yaml_model.Service;
 
 public interface RapidoDockerRunner {
 
-    public class RapidoDockerRunnerFactory {
+    class RapidoDockerRunnerFactory {
         public static RapidoDockerRunner getInstance(DeployPolicy deployPolicy) {
             switch (deployPolicy) {
             case ROLLING_UPDATE:

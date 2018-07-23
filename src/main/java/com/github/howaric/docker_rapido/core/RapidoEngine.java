@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.howaric.docker_rapido.exceptions.TemplateResolveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,45 +35,42 @@ public class RapidoEngine {
     }
 
     public void startRapido() {
-        // 1 validate rapidoTemplate
+        // 1 parse file to rapidoTemplate
         rapidoTemplate = YamlUtil.getObj(templateFile, RapidoTemplate.class);
         if (rapidoTemplate == null) {
-            logger.error("Template parse error");
-            return;
+            throw new TemplateResolveException("Failed to parse template to yaml bean");
         }
-        logger.info("RapidoTemplate:\n" + CommonUtil.prettyJson(rapidoTemplate));
+        logger.info("RapidoTemplate:\n{}", CommonUtil.prettyJson(rapidoTemplate));
         Map<String, StringBuffer> validate = ValidatorUtil.validate(rapidoTemplate);
         if (validate != null) {
-            logger.error("Yaml template validation failed: \n" + CommonUtil.prettyJson(validate));
-            return;
+            throw new TemplateResolveException("Yaml bean validation failed: \n{}" + CommonUtil.prettyJson(validate));
         }
 
-        /**
-         * validate template dependence and etc; check node connectivity sort
-         * out template
-         */
+        //TODO more detailed validation
+
+        //validate template dependence and sort out
         List<String> orderedServices = validateDependence();
-        logger.info("sorted: " + orderedServices);
+
+        //TODO check node connectivity
 
         Map<String, Service> services = rapidoTemplate.getServices();
         Map<String, Node> nodes = rapidoTemplate.getNodes();
         List<ServiceTaskHandler> serviceTaskHandlers = new ArrayList<>();
         for (int i = 0; i < orderedServices.size(); i++) {
             String serviceName = orderedServices.get(i);// deploy service name
-            Service service = services.get(serviceName);// deploy service
+            Service service = services.get(serviceName);// deploy service details
             List<Node> targetNodes = null;
-            if (service.getDeploy() != null) {// deploy nodes
-                targetNodes = service.getDeploy().getPlacement().getNodes(nodes);// consider
-                                                                                 // multi-thread
+            if (service.getDeploy() != null) {// target nodes
+                targetNodes = service.getDeploy().getPlacement().getNodes(nodes);
             }
             String imageTag = null;
             if (service.getBuild() != null) {// need build image
                 imageTag = getImageTag(serviceName);
             }
             if ((targetNodes == null || targetNodes.isEmpty()) && imageTag == null) {
-                throw new GenerateRapidoJobFailedException("TargetNodes and imageTag are empty at the same time, nothing has to do");
+                throw new GenerateRapidoJobFailedException("TargetNodes and imageTags are all empty at the same time, will do nothing");
             }
-            logger.info(serviceName + " == targetNodes:" + targetNodes);
+            logger.info("{} will be created or updated on following nodes:{}", serviceName, targetNodes);
             serviceTaskHandlers.add(new ServiceTaskHandler(rapidoTemplate, serviceName, targetNodes, imageTag));
         }
 
@@ -141,9 +139,10 @@ public class RapidoEngine {
             services.add(serviceName);
             dependence.put(serviceName, depends_on);
         }
-        logger.info("services: " + services);
-        logger.info("dependence: " + dependence);
+        logger.info("Raw services: {}", services);
+        logger.info("Service dependencies: {}", dependence);
         analyseDependence(services, dependence);
+        logger.info("Sorted services: {}", services);
         return services;
     }
 

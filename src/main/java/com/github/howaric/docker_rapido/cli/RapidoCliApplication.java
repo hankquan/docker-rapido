@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import com.github.howaric.docker_rapido.exceptions.TemplateResolveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
@@ -16,10 +17,10 @@ public class RapidoCliApplication {
     private static Logger logger = LoggerFactory.getLogger(DockerRapidoApplication.class);
 
     public static void run(CliOptions cliOptions) {
-        // String templateFilePath = cliOptions.getTemplateFilePath();
+        String templateFilePath = cliOptions.getTemplateFilePath();
         File templateFile = readTemplateFile("classpath:template4.yml");
         if (templateFile == null) {
-            return;
+            throw new TemplateResolveException("Failed to get template file");
         }
         List<String> imageTags = cliOptions.getImageTag();
         RapidoEngine rapidoEngine = new RapidoEngine(templateFile, imageTags);

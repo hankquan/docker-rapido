@@ -1,53 +1,27 @@
 version: 1.0
 deliver_type: official
 owner: master
+repo: 172.24.94.60:5000
+remote_docker: tcp://39.104.164.56:6066
 services:
-  mysql-demo:
-    image: mysql
-    volumes:
-    - /docker/db/demo-db:/var/demo/mysql
-    environment:
-    - MYSQL_ROOT_PASSWORD=root
-    - MYSQL_DATABASE=cmc
-    - MYSQL_USER=demo
-    - MYSQL_PASSWORD=Mypass1!
-    deploy:
-      placement:
-        constraints:
-        - node.name == demo-node1
-      deploy_policy: on-absence
-      restart_policy:
-        condition: on-failure
-      replicas: 1
   demo:
-    image: mctree/demo
-    build: D:\works\temp
-    volumes:
-    - /docker/demo:/var/demo/
+    image: demo/test
+    build: C:\work\sdte\local
+    ports:
+    - 9090
     environment:
     - VERSION=0.0.1
+    - SPRING_BOOT_SPRING_CLOUD_CONSUL_HOST=172.24.94.60
     extra_hosts:
-    - db.jarvisqh.cn:demo-node1
+    - db.jarvisqh.cn:50.31.209.229
     - zipkin.jarvisqh.cn:50.31.209.229
-    links:
-    - mysql-demo:db.jarvisqh.cn
-    depends_on:
-    - mysql-demo
-    - zipkin
     deploy:
       deploy_policy: rolling-update
       placement:
         constraints:
         - node.labels.site == Li
-      replicas: 2
+      replicas: 1
 nodes:
-  demo-node1:
-    ip: 39.104.164.56
-    username: root
-    password: 12345ddD
-    docker_port: 6066
-    labels:
-    - site=Ki
   demo-node2:
     ip: 39.104.164.56
     username: root

@@ -9,69 +9,88 @@ import org.hibernate.validator.constraints.NotBlank;
 
 public class RapidoTemplate {
 
-	@NotBlank(message = "version can not be empty")
-	@Pattern(regexp = "^[0-9]{1}.[0-9]{1,2}$", message = "verion pattern is not correct, examlpe: 0.1, 1.0")
-	private String version;
-	
-	@NotBlank(message = "deliver_type can not be empty")
-	private String deliver_type;
-	
-	@NotBlank(message = "owner can not be empty")
-	private String owner;
+    @NotBlank(message = "version can not be empty")
+    @Pattern(regexp = "^[0-9]{1}.[0-9]{1,2}$", message = "verion pattern is not correct, examlpe: 0.1, 1.0")
+    private String version;
 
-	@Valid
-	private Map<String, Service> services;
-	
-	@Valid
-	private Map<String, Node> nodes;
+    @NotBlank(message = "deliver_type can not be empty")
+    private String deliver_type;
 
-	public Map<String, Node> getNodes() {
-		return nodes;
-	}
+    @NotBlank(message = "owner can not be empty")
+    private String owner;
 
-	public void setNodes(Map<String, Node> nodes) {
-		this.nodes = nodes;
-	}
+    @NotBlank(message = "repo can not be empty")
+    private String repo;
 
-	public String getVersion() {
-		return version;
-	}
+    @NotBlank(message = "remote_docker can not be empty")
+    private String remote_docker;
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    @Valid
+    private Map<String, Service> services;
 
-	public String getOwner() {
-		return owner;
-	}
+    @Valid
+    private Map<String, Node> nodes;
 
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
+    public String getRepo() {
+        return repo;
+    }
 
-	public Map<String, Service> getServices() {
-		return services;
-	}
+    public void setRepo(String repo) {
+        this.repo = repo;
+    }
 
-	public void setServices(Map<String, Service> services) {
-		this.services = services;
-	}
+    public String getRemote_docker() {
+        return remote_docker;
+    }
 
-	public String getDeliver_type() {
-		return deliver_type;
-	}
+    public void setRemote_docker(String remote_docker) {
+        this.remote_docker = remote_docker;
+    }
 
-	public void setDeliver_type(String deliver_type) {
-		this.deliver_type = deliver_type;
-	}
+    public Map<String, Node> getNodes() {
+        return nodes;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("JobTemplate [version=").append(version).append(", deliver_type=").append(deliver_type)
-				.append(", owner=").append(owner).append(", services=").append(services).append(", nodes=")
-				.append(nodes).append("]");
-		return builder.toString();
-	}
+    public void setNodes(Map<String, Node> nodes) {
+        this.nodes = nodes;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public Map<String, Service> getServices() {
+        return services;
+    }
+
+    public void setServices(Map<String, Service> services) {
+        this.services = services;
+    }
+
+    public String getDeliver_type() {
+        return deliver_type;
+    }
+
+    public void setDeliver_type(String deliver_type) {
+        this.deliver_type = deliver_type;
+    }
+
+    @Override
+    public String toString() {
+        return "RapidoTemplate [version=" + version + ", deliver_type=" + deliver_type + ", owner=" + owner + ", repo=" + repo
+                + ", remote_docker=" + remote_docker + ", services=" + services + ", nodes=" + nodes + "]";
+    }
 
 }

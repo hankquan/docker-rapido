@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false">
-	<property name="LOG_HOME" value="D:\\" />
+	<property name="LOG_HOME" value="C:\\work\\sdte\\temp" />
 	<appender name="STDOUT"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder

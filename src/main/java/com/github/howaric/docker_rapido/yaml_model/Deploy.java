@@ -4,59 +4,68 @@ import javax.validation.constraints.Min;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.github.howaric.docker_rapido.core.DeployPolicy;
+
 public class Deploy {
 
-	private Placement placement;
+    private Placement placement;
 
-	/**
-	 * options: rolling-update, force-update, on-absence(default)
-	 */
-	@NotBlank(message = "deploy_policy must be specified")
-	private String deploy_policy;
+    /**
+     * options: rolling-update, force-update, on-absence(default)
+     */
+    @NotBlank(message = "deploy_policy must be specified")
+    private String deploy_policy;
 
-	private RestartPolicy restart_policy;
+    private RestartPolicy restart_policy;
 
-	@Min(message = "replicas must be at least 1", value = 1)
-	private Integer replicas;
+    @Min(message = "replicas must be at least 1", value = 1)
+    private Integer replicas;
 
-	public RestartPolicy getRestart_policy() {
-		return restart_policy;
-	}
+    public RestartPolicy getRestart_policy() {
+        return restart_policy;
+    }
 
-	public void setRestart_policy(RestartPolicy restart_policy) {
-		this.restart_policy = restart_policy;
-	}
+    public void setRestart_policy(RestartPolicy restart_policy) {
+        this.restart_policy = restart_policy;
+    }
 
-	public Placement getPlacement() {
-		return placement;
-	}
+    public Placement getPlacement() {
+        return placement;
+    }
 
-	public void setPlacement(Placement placement) {
-		this.placement = placement;
-	}
+    public void setPlacement(Placement placement) {
+        this.placement = placement;
+    }
 
-	public String getDeploy_policy() {
-		return deploy_policy;
-	}
+    public DeployPolicy getDeployPolicy() {
+        if (deploy_policy == null) {
+            return DeployPolicy.ON_ABSENCE;
+        }
+        return DeployPolicy.valueOf(deploy_policy.replace("-", "_").toUpperCase());
+    }
 
-	public void setDeploy_policy(String deploy_policy) {
-		this.deploy_policy = deploy_policy;
-	}
+    public String getDeploy_policy() {
+        return deploy_policy;
+    }
 
-	public Integer getReplicas() {
-		return replicas;
-	}
+    public void setDeploy_policy(String deploy_policy) {
+        this.deploy_policy = deploy_policy;
+    }
 
-	public void setReplicas(Integer replicas) {
-		this.replicas = replicas;
-	}
+    public Integer getReplicas() {
+        return replicas;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Deploy [placement=").append(placement).append(", deploy_policy=").append(deploy_policy)
-				.append(", restart_policy=").append(restart_policy).append(", replicas=").append(replicas).append("]");
-		return builder.toString();
-	}
+    public void setReplicas(Integer replicas) {
+        this.replicas = replicas;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Deploy [placement=").append(placement).append(", deploy_policy=").append(deploy_policy).append(", restart_policy=")
+                .append(restart_policy).append(", replicas=").append(replicas).append("]");
+        return builder.toString();
+    }
 
 }

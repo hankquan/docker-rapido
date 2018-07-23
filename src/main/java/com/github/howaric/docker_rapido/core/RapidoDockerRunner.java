@@ -8,10 +8,12 @@ public interface RapidoDockerRunner {
     class RapidoDockerRunnerFactory {
         public static RapidoDockerRunner getInstance(DeployPolicy deployPolicy) {
             switch (deployPolicy) {
-            case ROLLING_UPDATE:
-                return new RollingUpdateRapidoDockerRunner();
-            default:
-                return null;
+                case ROLLING_UPDATE:
+                    return new RollingUpdateRapidoDockerRunner();
+                case ON_ABSENCE:
+                    return new OnAbsenceRapidoDockerRunner();
+                default:
+                    return null;
             }
         }
     }

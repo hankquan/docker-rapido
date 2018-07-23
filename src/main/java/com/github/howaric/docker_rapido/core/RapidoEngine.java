@@ -40,7 +40,6 @@ public class RapidoEngine {
         if (rapidoTemplate == null) {
             throw new TemplateResolveException("Failed to parse template to yaml bean");
         }
-        logger.info("RapidoTemplate:\n{}", CommonUtil.prettyJson(rapidoTemplate));
         Map<String, StringBuffer> validate = ValidatorUtil.validate(rapidoTemplate);
         if (validate != null) {
             throw new TemplateResolveException("Yaml bean validation failed: \n{}" + CommonUtil.prettyJson(validate));
@@ -87,7 +86,6 @@ public class RapidoEngine {
         // // 2 run rapidoJob,offer rapidoJob to thread pool
         // List<FutureTask<Integer>> tasks = new ArrayList<>();
         // for (JobModel jobModel : jobModels) {
-        // RapidoJob job = new RapidoJob(jobModel);
         // FutureTask<Integer> task = new FutureTask<>(job);
         // tasks.add(task);
         // ExecutorsCentre.getMainExecutor().submit(task);

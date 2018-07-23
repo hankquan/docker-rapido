@@ -21,6 +21,8 @@ public class ServiceTaskHandler {
     private List<Node> targetNodes;
     private String imageTag;
 
+    public static final String LATEST = ":latest";
+
     public ServiceTaskHandler(RapidoTemplate rapidoTemplate, String serviceName, List<Node> targetNodes, String imageTag) {
         super();
         this.rapidoTemplate = rapidoTemplate;
@@ -30,31 +32,32 @@ public class ServiceTaskHandler {
     }
 
     public void runTask() {
-        logger.info("Get service task: {}, to build image-tag: {}, rapido will deploy this service to nodes: {}", serviceName, targetNodes);
+        logger.info("");
+        logger.info("****************Start service task: {}****************", serviceName);
+        logger.info("Get service task: {}, to build image-tag: {}, rapido will deploy this service to nodes: {}", serviceName, imageTag, targetNodes);
         // build image if need
         Service service = rapidoTemplate.getServices().get(serviceName);
         String image = service.getImage();
-        String imageNameWithRepoAndTag = rapidoTemplate.getRepo() + "/" + image;
+        String imageName = image;
         if (imageTag != null) {
             DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
-            imageNameWithRepoAndTag = imageNameWithRepoAndTag + ":" + imageTag;
-            logger.info("Start to build image: {}", imageNameWithRepoAndTag);
-            String imageId = optDocker.buildImage(service.getBuild(), imageNameWithRepoAndTag);
+            imageName = rapidoTemplate.getRepo() + "/" + imageName + ":" + imageTag;
+            logger.info("Start to build image: {}", imageName);
+            String imageId = optDocker.buildImage(service.getBuild(), imageName);
             logger.info("Building successfully, imageId is {}", imageId);
         }
 
-        logger.info("Rapido will use image {} to create containers of service {}", imageNameWithRepoAndTag, serviceName);
+        imageName = imageName.contains(":") ? imageName : imageName + LATEST;
+        logger.info("Rapido will use image {} to create containers of service {}", imageName, serviceName);
 
         // go to each node and do operation
         DeployPolicy deployPolicy = service.getDeploy().getDeployPolicy();
         logger.info("Deploy policy is {}", deployPolicy.name().toLowerCase());
-        // rolling-update 起新的，删除之前的。。。
-        // on-absent 存在跳过，不存在启动
         for (Node node : targetNodes) {
             RapidoDockerRunner runner = RapidoDockerRunnerFactory.getInstance(deployPolicy);
-            runner.start(rapidoTemplate.getDeliver_type(), rapidoTemplate.getOwner(), node, serviceName, service, imageNameWithRepoAndTag);
+            runner.start(rapidoTemplate.getDeliver_type(), rapidoTemplate.getOwner(), node, serviceName, service, imageName);
         }
-
+        logger.info("******************End service task******************", serviceName);
     }
 
 }

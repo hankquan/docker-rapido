@@ -21,12 +21,14 @@ public class RollingUpdateRapidoDockerRunner extends AbstractRapidoDockerRunner 
 
     @Override
     protected void perform() {
-        findCurrent();
         Integer replicas = service.getDeploy().getReplicas();
         for (int i = 1; i <= replicas; i++) {
             List<String> ports = service.getPorts();
             List<String> environment = service.getEnvironment();
-            String containerId = dockerProxy.createContainer(generateContainerName(), imageNameWithRepoAndTag, ports, environment,
+            if (!dockerProxy.isImageExits(imageName)) {
+                dockerProxy.pullImage(imageName, "", "");
+            }
+            String containerId = dockerProxy.createContainer(generateContainerName(), imageName, ports, environment,
                     service.getLinks(), service.getVolumes(), service.getExtra_hosts());
             logger.info("create container: " + containerId);
             dockerProxy.startContainer(containerId);
@@ -48,11 +50,11 @@ public class RollingUpdateRapidoDockerRunner extends AbstractRapidoDockerRunner 
         }
     }
 
-    private void findCurrent() {
+    protected void findCurrentContainers() {
         List<Container> allRunningContainers = dockerProxy.listContainers(false);
         for (Container container : allRunningContainers) {
-            String containername = container.getNames()[0];
-            if (containername.contains(getContainerNamePrefix())) {
+            String containerName = container.getNames()[0].substring(1);
+            if (containerName.startsWith(getContainerNamePrefix())) {
                 current.add(container);
             }
         }

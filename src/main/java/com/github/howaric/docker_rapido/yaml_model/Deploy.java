@@ -16,6 +16,8 @@ public class Deploy {
     @NotBlank(message = "deploy_policy must be specified")
     private String deploy_policy;
 
+    private Integer stop_timeout;
+
     private RestartPolicy restart_policy;
 
     @Min(message = "replicas must be at least 1", value = 1)
@@ -44,6 +46,14 @@ public class Deploy {
         return DeployPolicy.valueOf(deploy_policy.replace("-", "_").toUpperCase());
     }
 
+    public Integer getStop_timeout() {
+        return stop_timeout;
+    }
+
+    public void setStop_timeout(Integer stop_timeout) {
+        this.stop_timeout = stop_timeout;
+    }
+
     public String getDeploy_policy() {
         return deploy_policy;
     }
@@ -62,10 +72,13 @@ public class Deploy {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Deploy [placement=").append(placement).append(", deploy_policy=").append(deploy_policy).append(", restart_policy=")
-                .append(restart_policy).append(", replicas=").append(replicas).append("]");
-        return builder.toString();
+        final StringBuilder sb = new StringBuilder("Deploy{");
+        sb.append("placement=").append(placement);
+        sb.append(", deploy_policy='").append(deploy_policy).append('\'');
+        sb.append(", stop_timeout=").append(stop_timeout);
+        sb.append(", restart_policy=").append(restart_policy);
+        sb.append(", replicas=").append(replicas);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

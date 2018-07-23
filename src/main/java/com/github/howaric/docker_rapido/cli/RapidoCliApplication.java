@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import com.github.howaric.docker_rapido.exceptions.TemplateResolveException;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
@@ -30,8 +31,9 @@ public class RapidoCliApplication {
     private static File readTemplateFile(String path) {
         try {
             File file = ResourceUtils.getFile(path);
+            logger.info("Template yml:\n{}", FileUtils.readFileToString(file));
             return file;
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             logger.error("Template file doesn't exist: {}", path);
             e.printStackTrace();
         }

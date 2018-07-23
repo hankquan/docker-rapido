@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +88,7 @@ public class DefaultDockerProxy implements DockerProxy {
     @Override
     public void pullImage(String imageNameWithTag, String username, String password) {
         PullImageResultCallback pullImageResultCallback = new PullImageResultCallback();
-        if (username != null && password != null) {
+        if (!Strings.isNullOrEmpty(username) && !Strings.isNullOrEmpty(password)) {
             AuthConfig authConfig = dockerClient.authConfig().withUsername(username).withPassword(password);
             dockerClient.pullImageCmd(imageNameWithTag).withAuthConfig(authConfig).exec(pullImageResultCallback).awaitSuccess();
         } else {
@@ -100,9 +101,11 @@ public class DefaultDockerProxy implements DockerProxy {
         List<Image> imageList = dockerClient.listImagesCmd().exec();
         for (Image image : imageList) {
             String[] repoTags = image.getRepoTags();
-            for (String repoTag : repoTags) {
-                if (imageNameWithTag.equals(repoTag)) {
-                    return true;
+            if (repoTags != null) {
+                for (String repoTag : repoTags) {
+                    if (imageNameWithTag.equals(repoTag)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -150,7 +153,7 @@ public class DefaultDockerProxy implements DockerProxy {
 
     @Override
     public String createContainer(String name, String imageNameWithTag, List<String> ports, List<String> envs, List<String> links,
-            List<String> volumes, List<String> extraHosts) {
+                                  List<String> volumes, List<String> extraHosts) {
         CreateContainerCmd cmd = dockerClient.createContainerCmd(imageNameWithTag).withName(name);
 
         if (CommonUtil.hasElement(ports)) {
@@ -176,9 +179,8 @@ public class DefaultDockerProxy implements DockerProxy {
             if (!portBindings.getBindings().isEmpty()) {
                 cmd = cmd.withPortBindings(portBindings);
             }
-        } else {
-            cmd = cmd.withPublishAllPorts(true);
         }
+
         if (CommonUtil.hasElement(envs)) {
             cmd = cmd.withEnv(envs);
         }
@@ -212,7 +214,7 @@ public class DefaultDockerProxy implements DockerProxy {
             cmd = cmd.withVolumes(volumeList);
             cmd = cmd.withBinds(bindList);
         }
-        cmd = cmd.withCmd("true");
+        //cmd = cmd.withCmd("true");
         String containerId = cmd.exec().getId();
         logger.info("Created containerId {}", containerId);
         return containerId;

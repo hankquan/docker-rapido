@@ -1,7 +1,6 @@
 package com.github.howaric.docker_rapido.core;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -28,24 +27,27 @@ public abstract class AbstractRapidoDockerRunner implements RapidoDockerRunner {
     protected String serviceName;
     protected String deployType;
     protected String owner;
-    protected String imageNameWithRepoAndTag;
+    protected String imageName;
     protected Node node;
     protected Service service;
 
     @Override
-    public void start(String deployType, String owner, Node node, String serviceName, Service service, String imageNameWithRepoAndTag) {
+    public void start(String deployType, String owner, Node node, String serviceName, Service service, String imageName) {
         this.deployType = deployType;
         this.owner = owner;
         this.node = node;
         this.service = service;
         this.serviceName = serviceName;
-        this.imageNameWithRepoAndTag = imageNameWithRepoAndTag;
+        this.imageName = imageName;
         String dockerEndPoint = node.getDockerEndPoint();
         dockerProxy = DockerProxyFactory.getInstance(dockerEndPoint);
+        findCurrentContainers();
         perform();
     }
 
     protected abstract void perform();
+
+    protected abstract void findCurrentContainers();
 
     protected String generateContainerName() {
         return getContainerNamePrefix() + "." + CommonUtil.getTimeStamp();
@@ -54,13 +56,13 @@ public abstract class AbstractRapidoDockerRunner implements RapidoDockerRunner {
     protected String getContainerNamePrefix() {
         return serviceName + "." + deployType + "." + owner;
     }
-    
+
     protected void removeCurrentContainer() {
         if (CommonUtil.hasElement(current)) {
             Container container = current.poll();
             dockerProxy.stopContainer(container.getId());
             dockerProxy.removeContainer(container.getId());
-            logger.info("Stop and removeold container: " + container.getNames()[0]);
+            logger.info("Stop and remove old container: " + container.getNames()[0].substring(1));
         }
     }
 

@@ -21,6 +21,9 @@ public class CliOptions {
 	@Parameter(names = { "--template", "-t" }, description = "local path of rapido template file")
 	private String templateFilePath;
 
+	@Parameter(names = { "--log-dir", "-logdir" }, description = "log dir")
+	private String logDir;
+
 	public boolean isWebMode() {
 		return webMode;
 	}
@@ -53,13 +56,23 @@ public class CliOptions {
 		this.imageTag = imageTag;
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("RapidoCliOptions [webMode=").append(webMode).append(", isDeclareOfficial=")
-				.append(isDeclareOfficial).append(", imageTag=").append(imageTag).append(", templateFilePath=")
-				.append(templateFilePath).append("]");
-		return builder.toString();
+	public String getLogDir() {
+		return logDir;
 	}
 
+	public void setLogDir(String logDir) {
+		this.logDir = logDir;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("CliOptions{");
+		sb.append("webMode=").append(webMode);
+		sb.append(", isDeclareOfficial=").append(isDeclareOfficial);
+		sb.append(", imageTag=").append(imageTag);
+		sb.append(", templateFilePath='").append(templateFilePath).append('\'');
+		sb.append(", logDir='").append(logDir).append('\'');
+		sb.append('}');
+		return sb.toString();
+	}
 }

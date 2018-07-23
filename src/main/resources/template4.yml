@@ -4,6 +4,20 @@ owner: master
 repo: 172.24.94.60:5000
 remote_docker: tcp://39.104.164.56:6066
 services:
+  mysql-demo:
+    image: mysql
+    volumes:
+    - /root/mysql-demo:/var/demo/mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=cmc
+    - MYSQL_USER=demo
+    - MYSQL_PASSWORD=Mypass1!
+    deploy:
+      placement:
+        constraints:
+        - node.name == demo-node2
+      deploy_policy: on-absence
   demo:
     image: demo/test
     build: C:\work\local
@@ -15,12 +29,15 @@ services:
     extra_hosts:
     - db.jarvisqh.cn:50.31.209.229
     - zipkin.jarvisqh.cn:50.31.209.229
+    depends_on:
+    - mysql-demo
     deploy:
       deploy_policy: rolling-update
+      stop_timeout: 600
       placement:
         constraints:
         - node.labels.site == Li
-      replicas: 1
+      replicas: 2
 nodes:
   demo-node2:
     ip: 39.104.164.56

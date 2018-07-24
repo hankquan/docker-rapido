@@ -21,9 +21,7 @@ public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
         List<String> ports = service.getPorts();
         List<String> environment = service.getEnvironment();
 
-        if (!dockerProxy.isImageExits(imageName)) {
-            dockerProxy.pullImage(imageName, "", "");
-        }
+        dockerProxy.pullImage(imageName, repository.getUsername(), repository.getPassword());
 
         String containerId = dockerProxy.createContainer(generateContainerName(),
                 imageName.contains(ServiceTaskHandler.LATEST) ? imageName.replace(ServiceTaskHandler.LATEST, "") : imageName, ports,

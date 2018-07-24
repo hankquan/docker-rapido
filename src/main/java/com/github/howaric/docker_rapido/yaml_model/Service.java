@@ -11,6 +11,7 @@ public class Service {
     @NotBlank(message = "image can not be null")
     private String image;
     private String build;
+    private String publish_port;
     private List<String> ports;
     private List<String> extra_hosts;
     private List<String> depends_on;
@@ -28,6 +29,14 @@ public class Service {
             }
         }
         return 0;
+    }
+
+    public String getPublish_port() {
+        return publish_port;
+    }
+
+    public void setPublish_port(String publish_port) {
+        this.publish_port = publish_port;
     }
 
     public String getBuild() {
@@ -105,10 +114,10 @@ public class Service {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Service [image=").append(image).append(", build=").append(build).append(", ports=").append(ports)
-                .append(", extra_hosts=").append(extra_hosts).append(", depends_on=").append(depends_on).append(", volumes=")
-                .append(volumes).append(", environment=").append(environment).append(", links=").append(links).append(", deploy=")
-                .append(deploy).append("]");
+        builder.append("Service [image=").append(image).append(", build=").append(build).append(", publish_port=").append(publish_port)
+                .append(", ports=").append(ports).append(", extra_hosts=").append(extra_hosts).append(", depends_on=").append(depends_on)
+                .append(", volumes=").append(volumes).append(", environment=").append(environment).append(", links=").append(links)
+                .append(", deploy=").append(deploy).append("]");
         return builder.toString();
     }
 

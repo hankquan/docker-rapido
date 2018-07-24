@@ -21,7 +21,7 @@ public class Deploy {
     private RestartPolicy restart_policy;
 
     @Min(message = "replicas must be at least 1", value = 1)
-    private Integer replicas;
+    private Integer replicas = 1;
 
     public RestartPolicy getRestart_policy() {
         return restart_policy;

@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class OnAbsenceRapidoDockerRunner extends AbstractRapidoDockerRunner {
+public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
 
-    private static Logger logger = LoggerFactory.getLogger(OnAbsenceRapidoDockerRunner.class);
+    private static Logger logger = LoggerFactory.getLogger(OnAbsenceDockerHostDeployer.class);
 
     @Override
     protected void perform() {
@@ -25,8 +25,8 @@ public class OnAbsenceRapidoDockerRunner extends AbstractRapidoDockerRunner {
         }
 
         String containerId = dockerProxy.createContainer(generateContainerName(),
-                imageName.contains(ServiceTaskHandler.LATEST) ? imageName.replace(ServiceTaskHandler.LATEST, "") : imageName, ports, environment,
-                service.getLinks(), service.getVolumes(), service.getExtra_hosts());
+                imageName.contains(ServiceTaskHandler.LATEST) ? imageName.replace(ServiceTaskHandler.LATEST, "") : imageName, ports,
+                environment, service.getLinks(), service.getVolumes(), service.getExtra_hosts());
         logger.info("create container: " + containerId);
         dockerProxy.startContainer(containerId);
         // how to check if container is ready

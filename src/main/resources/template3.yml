@@ -1,6 +1,11 @@
 version: 1.0
 deliver_type: official
 owner: master
+repository: 
+  url: 172.24.94.60:5000
+  prefix: sandbox
+  username: ebidteac
+  password: teacOnly1
 services:
   mysql-demo:
     image: mysql

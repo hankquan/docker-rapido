@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.StopContainerCmd;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.api.model.Bind;
@@ -119,13 +120,15 @@ public class DefaultDockerProxy implements DockerProxy {
     }
 
     @Override
-    public void stopContainer(String containerId) {
+    public void stopContainer(String containerId, Integer timeout) {
         try {
-            dockerClient.stopContainerCmd(containerId).exec();
+            StopContainerCmd stopContainerCmd = dockerClient.stopContainerCmd(containerId);
+            if (timeout != null && timeout > 0) {
+                stopContainerCmd = stopContainerCmd.withTimeout(timeout);
+            }
+            stopContainerCmd.exec();
         } catch (NotModifiedException e) {
             logger.error("No such Container " + containerId);
-            // throw new NoSuchContainerException("No such Container " +
-            // containerId);
         }
     }
 
@@ -135,8 +138,6 @@ public class DefaultDockerProxy implements DockerProxy {
             dockerClient.startContainerCmd(containerId).exec();
         } catch (NotModifiedException e) {
             logger.error("No such Container " + containerId);
-            // throw new NoSuchContainerException("No such Container " +
-            // containerId);
         }
     }
 
@@ -146,14 +147,12 @@ public class DefaultDockerProxy implements DockerProxy {
             dockerClient.restartContainerCmd(containerId).exec();
         } catch (NotModifiedException e) {
             logger.error("No such Container " + containerId);
-            // throw new NoSuchContainerException("No such Container " +
-            // containerId);
         }
     }
 
     @Override
     public String createContainer(String name, String imageNameWithTag, List<String> ports, List<String> envs, List<String> links,
-                                  List<String> volumes, List<String> extraHosts) {
+            List<String> volumes, List<String> extraHosts) {
         CreateContainerCmd cmd = dockerClient.createContainerCmd(imageNameWithTag).withName(name);
 
         if (CommonUtil.hasElement(ports)) {
@@ -162,15 +161,15 @@ public class DefaultDockerProxy implements DockerProxy {
             for (String port : ports) {
                 if (port.contains(":")) {
                     String[] split = port.split(":");
-                    String exposePort = split[0];
-                    String innerPort = split[1];
-                    ExposedPort expose = ExposedPort.tcp(Integer.parseInt(exposePort));
-                    portBindings.bind(expose, Ports.Binding.bindPort(Integer.parseInt(innerPort)));
+                    String hostPort = split[0];
+                    String containerExposedPort = split[1];
+                    ExposedPort expose = ExposedPort.tcp(Integer.parseInt(containerExposedPort));
+                    portBindings.bind(expose, Ports.Binding.bindPort(Integer.parseInt(hostPort)));
                     exposePortList.add(expose);
                 } else {
                     ExposedPort expose = ExposedPort.tcp(Integer.parseInt(port));
                     exposePortList.add(expose);
-                    cmd = cmd.withPublishAllPorts(true);
+                    // cmd = cmd.withPublishAllPorts(true);
                 }
             }
             if (!exposePortList.isEmpty()) {
@@ -214,7 +213,11 @@ public class DefaultDockerProxy implements DockerProxy {
             cmd = cmd.withVolumes(volumeList);
             cmd = cmd.withBinds(bindList);
         }
-        //cmd = cmd.withCmd("true");
+
+        if (CommonUtil.hasElement(extraHosts)) {
+            cmd = cmd.withExtraHosts(extraHosts);
+        }
+
         String containerId = cmd.exec().getId();
         logger.info("Created containerId {}", containerId);
         return containerId;
@@ -226,8 +229,6 @@ public class DefaultDockerProxy implements DockerProxy {
             dockerClient.removeContainerCmd(containerId).exec();
         } catch (NotModifiedException e) {
             logger.error("No such Container " + containerId);
-            // throw new NoSuchContainerException("No such Container " +
-            // containerId);
         }
     }
 

@@ -18,14 +18,14 @@ public interface DockerProxy {
 
     List<Container> listContainers(boolean isShowAll);
 
-    void stopContainer(String containerId);
+    void stopContainer(String containerId, Integer timeout);
 
     void startContainer(String containerId);
 
     void restartContainer(String containerId);
 
-    String createContainer(String name, String imageNameWithTag, List<String> ports, List<String> envs,
-            List<String> links, List<String> volumes, List<String> extraHosts);
+    String createContainer(String name, String imageNameWithTag, List<String> ports, List<String> envs, List<String> links,
+            List<String> volumes, List<String> extraHosts);
 
     void removeContainer(String containerId);
 

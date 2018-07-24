@@ -25,13 +25,15 @@ public class RapidoEngine {
 
     private File templateFile;
     private List<String> imageTags;
+    private Boolean isDeclaredOfficial;
 
     private RapidoTemplate rapidoTemplate;
 
-    public RapidoEngine(File templateFile, List<String> imageTags) {
+    public RapidoEngine(File templateFile, List<String> imageTags, Boolean isDeclaredOfficial) {
         super();
         this.templateFile = templateFile;
         this.imageTags = imageTags;
+        this.isDeclaredOfficial = isDeclaredOfficial;
     }
 
     public void startRapido() {
@@ -45,19 +47,29 @@ public class RapidoEngine {
             throw new TemplateResolveException("Yaml bean validation failed: \n{}" + CommonUtil.prettyJson(validate));
         }
 
-        //TODO more detailed validation
+        // TODO more detailed validation
+        if ("official".equalsIgnoreCase(rapidoTemplate.getDeliver_type())) {
+            if (!isDeclaredOfficial) {
+                throw new TemplateResolveException("You must use --official if you want to deliver an official deployment");
+            } else {
+                if (!"master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
+                    throw new TemplateResolveException("Official deployment only can be owned by master");
+                }
+            }
+        }
 
-        //validate template dependence and sort out
+        // validate template dependence and sort out
         List<String> orderedServices = validateDependence();
 
-        //TODO check node connectivity
+        // TODO check node connectivity
 
         Map<String, Service> services = rapidoTemplate.getServices();
         Map<String, Node> nodes = rapidoTemplate.getNodes();
         List<ServiceTaskHandler> serviceTaskHandlers = new ArrayList<>();
         for (int i = 0; i < orderedServices.size(); i++) {
             String serviceName = orderedServices.get(i);// deploy service name
-            Service service = services.get(serviceName);// deploy service details
+            Service service = services.get(serviceName);// deploy service
+                                                        // details
             List<Node> targetNodes = null;
             if (service.getDeploy() != null) {// target nodes
                 targetNodes = service.getDeploy().getPlacement().getNodes(nodes);

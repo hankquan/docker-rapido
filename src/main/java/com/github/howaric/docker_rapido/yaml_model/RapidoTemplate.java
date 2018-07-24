@@ -19,8 +19,8 @@ public class RapidoTemplate {
     @NotBlank(message = "owner can not be empty")
     private String owner;
 
-    @NotBlank(message = "repo can not be empty")
-    private String repo;
+    @Valid
+    private Repository repository;
 
     @NotBlank(message = "remote_docker can not be empty")
     private String remote_docker;
@@ -31,12 +31,12 @@ public class RapidoTemplate {
     @Valid
     private Map<String, Node> nodes;
 
-    public String getRepo() {
-        return repo;
+    public Repository getRepository() {
+        return repository;
     }
 
-    public void setRepo(String repo) {
-        this.repo = repo;
+    public void setRepository(Repository repository) {
+        this.repository = repository;
     }
 
     public String getRemote_docker() {
@@ -89,8 +89,11 @@ public class RapidoTemplate {
 
     @Override
     public String toString() {
-        return "RapidoTemplate [version=" + version + ", deliver_type=" + deliver_type + ", owner=" + owner + ", repo=" + repo
-                + ", remote_docker=" + remote_docker + ", services=" + services + ", nodes=" + nodes + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("RapidoTemplate [version=").append(version).append(", deliver_type=").append(deliver_type).append(", owner=")
+                .append(owner).append(", repository=").append(repository).append(", remote_docker=").append(remote_docker)
+                .append(", services=").append(services).append(", nodes=").append(nodes).append("]");
+        return builder.toString();
     }
 
 }

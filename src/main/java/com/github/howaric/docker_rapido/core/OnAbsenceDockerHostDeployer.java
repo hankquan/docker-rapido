@@ -5,6 +5,7 @@ import com.github.howaric.docker_rapido.utils.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
@@ -39,14 +40,18 @@ public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
 
     protected void findCurrentContainers() {
         List<Container> allRunningContainers = dockerProxy.listContainers(false);
+        List<String> containerNames = new ArrayList<>();
         for (Container container : allRunningContainers) {
-            String containerName = container.getNames()[0].substring(1);
-            if (containerName.equals(generateContainerName())) {
-                current.add(container);
+            String[] names = container.getNames();
+            for (String name : names) {
+                String realName = name.substring(1);
+                if (!realName.contains("/") && realName.equals(getContainerNamePrefix())) {
+                    current.add(container);
+                    containerNames.add(realName);
+                }
             }
         }
-        // TODO simplify output
-        logger.info("Find current containers: " + current);
+        logger.info("Find current containers: " + containerNames);
     }
 
 }

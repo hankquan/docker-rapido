@@ -1,5 +1,6 @@
 package com.github.howaric.docker_rapido.core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -100,13 +101,18 @@ public class RollingUpdateDockerHostDeployer extends AbstractDockerHostDeployer 
 
     protected void findCurrentContainers() {
         List<Container> allRunningContainers = dockerProxy.listContainers(false);
+        List<String> containerNames = new ArrayList<>();
         for (Container container : allRunningContainers) {
-            String containerName = container.getNames()[0].substring(1);
-            if (containerName.startsWith(getContainerNamePrefix())) {
-                current.add(container);
+            String[] names = container.getNames();
+            for (String name : names) {
+                String realName = name.substring(1);
+                if (!realName.contains("/") && realName.startsWith(getContainerNamePrefix())) {
+                    current.add(container);
+                    containerNames.add(realName);
+                }
             }
         }
-        logger.info("Find current containers: " + current);
+        logger.info("Find current containers: " + containerNames);
     }
 
 }

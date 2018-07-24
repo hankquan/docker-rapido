@@ -95,29 +95,6 @@ public class RapidoEngine {
             System.exit(1);
         }
 
-        // // 2 run rapidoJob,offer rapidoJob to thread pool
-        // List<FutureTask<Integer>> tasks = new ArrayList<>();
-        // for (JobModel jobModel : jobModels) {
-        // FutureTask<Integer> task = new FutureTask<>(job);
-        // tasks.add(task);
-        // ExecutorsCentre.getMainExecutor().submit(task);
-        // }
-        //
-        // List<Integer> result = new ArrayList<>();
-        // for (FutureTask<Integer> task : tasks) {
-        // try {
-        // result.add(task.get());
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
-        // }
-        //
-        // for (Integer ret : result) {
-        // if (ret != 1) {
-        // System.exit(1);
-        // }
-        // }
-        // System.exit(0);
     }
 
     private String getImageTag(String serviceName) {

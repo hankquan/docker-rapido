@@ -8,71 +8,80 @@ import com.beust.jcommander.converters.CommaParameterSplitter;
 
 public class CliOptions {
 
-	@Parameter(names = { "--web-mode" })
-	private boolean webMode;
+    @Parameter(names = { "--help", "-h" }, description = "Get command usage")
+    private boolean help;
 
-	@Parameter(names = { "--official" }, description = "official release if true")
-	private boolean isDeclareOfficial;
+    @Parameter(names = { "--web-mode" }, description = "Start docker-rapido as a rest service")
+    private boolean webMode;
 
-	@Parameter(names = { "--image-tag",
-			"-it" }, description = "image tags: -it demo1:0.0.1,demo2:0.0.3", splitter = CommaParameterSplitter.class)
-	private List<String> imageTag = new ArrayList<>();
+    @Parameter(names = { "--official" }, description = "Declare --official if this is an official update")
+    private boolean isDeclareOfficial;
 
-	@Parameter(names = { "--template", "-t" }, description = "local path of rapido template file")
-	private String templateFilePath;
+    @Parameter(names = { "--image-tag",
+            "-it" }, description = "Image tags: 0.0.1-snapshot, specify service name if there are more than one as app1:0.0.1,app2:0.0.3", splitter = CommaParameterSplitter.class)
+    private List<String> imageTag = new ArrayList<>();
 
-	@Parameter(names = { "--log-dir", "-logdir" }, description = "log dir")
-	private String logDir;
+    @Parameter(names = { "--template", "-t" }, description = "Required: Full local path of rapido template file")
+    private String templateFilePath;
 
-	public boolean isWebMode() {
-		return webMode;
-	}
+    @Parameter(names = { "-logdir" }, description = "Log folder where logs will be created, current folder as default")
+    private String logDir;
 
-	public void setWebMode(boolean webMode) {
-		this.webMode = webMode;
-	}
+    public boolean isHelp() {
+        return help;
+    }
 
-	public boolean isDeclareOfficial() {
-		return isDeclareOfficial;
-	}
+    public void setHelp(boolean help) {
+        this.help = help;
+    }
 
-	public void setDeclareOfficial(boolean isDeclareOfficial) {
-		this.isDeclareOfficial = isDeclareOfficial;
-	}
+    public boolean isWebMode() {
+        return webMode;
+    }
 
-	public String getTemplateFilePath() {
-		return templateFilePath;
-	}
+    public void setWebMode(boolean webMode) {
+        this.webMode = webMode;
+    }
 
-	public void setTemplateFilePath(String templateFilePath) {
-		this.templateFilePath = templateFilePath;
-	}
+    public boolean isDeclareOfficial() {
+        return isDeclareOfficial;
+    }
 
-	public List<String> getImageTag() {
-		return imageTag;
-	}
+    public void setDeclareOfficial(boolean isDeclareOfficial) {
+        this.isDeclareOfficial = isDeclareOfficial;
+    }
 
-	public void setImageTag(List<String> imageTag) {
-		this.imageTag = imageTag;
-	}
+    public String getTemplateFilePath() {
+        return templateFilePath;
+    }
 
-	public String getLogDir() {
-		return logDir;
-	}
+    public void setTemplateFilePath(String templateFilePath) {
+        this.templateFilePath = templateFilePath;
+    }
 
-	public void setLogDir(String logDir) {
-		this.logDir = logDir;
-	}
+    public List<String> getImageTag() {
+        return imageTag;
+    }
 
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder("CliOptions{");
-		sb.append("webMode=").append(webMode);
-		sb.append(", isDeclareOfficial=").append(isDeclareOfficial);
-		sb.append(", imageTag=").append(imageTag);
-		sb.append(", templateFilePath='").append(templateFilePath).append('\'');
-		sb.append(", logDir='").append(logDir).append('\'');
-		sb.append('}');
-		return sb.toString();
-	}
+    public void setImageTag(List<String> imageTag) {
+        this.imageTag = imageTag;
+    }
+
+    public String getLogDir() {
+        return logDir;
+    }
+
+    public void setLogDir(String logDir) {
+        this.logDir = logDir;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CliOptions [help=").append(help).append(", webMode=").append(webMode).append(", isDeclareOfficial=")
+                .append(isDeclareOfficial).append(", imageTag=").append(imageTag).append(", templateFilePath=").append(templateFilePath)
+                .append(", logDir=").append(logDir).append("]");
+        return builder.toString();
+    }
+
 }

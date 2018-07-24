@@ -16,11 +16,17 @@ import java.io.File;
 public class DockerRapidoApplication {
 
     private static final String logDir = "log.dir";
+    private static final String DOCKER_RAPIDO = "docker-rapido";
 
     public static void main(String[] args) {
         CliOptions cliOptions = new CliOptions();
         JCommander jcommander = JCommander.newBuilder().addObject(cliOptions).build();
         jcommander.parse(args);
+        jcommander.setProgramName(DOCKER_RAPIDO);
+        if (cliOptions.isHelp()) {
+            jcommander.usage();
+            return;
+        }
         setLogDir(cliOptions);
         Logger logger = LoggerFactory.getLogger(DockerRapidoApplication.class);
         logger.info("Get cli params: " + cliOptions);

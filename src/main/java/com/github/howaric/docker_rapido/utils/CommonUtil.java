@@ -49,7 +49,7 @@ public class CommonUtil {
     }
 
     public static String getTimeStamp() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         return sdf.format(new Date());
     }
 }

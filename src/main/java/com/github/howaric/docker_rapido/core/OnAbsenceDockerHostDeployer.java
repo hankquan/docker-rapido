@@ -45,6 +45,7 @@ public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
                 current.add(container);
             }
         }
+        // TODO simplify output
         logger.info("Find current containers: " + current);
     }
 

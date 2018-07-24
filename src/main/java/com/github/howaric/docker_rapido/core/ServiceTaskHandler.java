@@ -45,6 +45,9 @@ public class ServiceTaskHandler {
             logger.info("Start to build image: {}", imageName);
             String imageId = optDocker.buildImage(service.getBuild(), imageName);
             logger.info("Building successfully, imageId is {}", imageId);
+            logger.info("Start to push image");
+            optDocker.pushImage(imageName, rapidoTemplate.getRepository().getUsername(), rapidoTemplate.getRepository().getPassword());
+            logger.info("Pushing successfully");
         }
 
         imageName = imageName.contains(":") ? imageName : imageName + LATEST;

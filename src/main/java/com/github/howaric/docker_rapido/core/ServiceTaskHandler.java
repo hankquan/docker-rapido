@@ -11,7 +11,6 @@ import com.github.howaric.docker_rapido.exceptions.IllegalImageTagsException;
 import com.github.howaric.docker_rapido.yaml_model.Node;
 import com.github.howaric.docker_rapido.yaml_model.RapidoTemplate;
 import com.github.howaric.docker_rapido.yaml_model.Service;
-import com.google.common.base.Strings;
 
 public class ServiceTaskHandler {
 

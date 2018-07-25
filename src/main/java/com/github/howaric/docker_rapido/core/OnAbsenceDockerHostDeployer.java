@@ -33,7 +33,7 @@ public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
 
     @Override
     protected String generateContainerName() {
-        return getContainerNamePrefix();
+        return serviceName;
     }
 
     protected void findCurrentContainers() {

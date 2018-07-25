@@ -7,9 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import com.github.howaric.docker_rapido.docker.DockerProxy;
 import com.github.howaric.docker_rapido.docker.DockerProxyFactory;
+import com.github.howaric.docker_rapido.exceptions.IllegalImageTagsException;
 import com.github.howaric.docker_rapido.yaml_model.Node;
 import com.github.howaric.docker_rapido.yaml_model.RapidoTemplate;
 import com.github.howaric.docker_rapido.yaml_model.Service;
+import com.google.common.base.Strings;
 
 public class ServiceTaskHandler {
 
@@ -37,12 +39,23 @@ public class ServiceTaskHandler {
                 targetNodes);
         // build image if need
         Service service = rapidoTemplate.getServices().get(serviceName);
-        String image = service.getImage();
-        String imageName = image;
-        if (imageTag == null && rapidoTemplate.getDeliver_type().equalsIgnoreCase("development")) {
-            imageTag = rapidoTemplate.getOwner();
+        String imageName = service.getImage();
+
+        boolean isBuildImage = false;
+        if (service.getBuild() != null) {
+            if (imageTag == null) {
+                if ("development".equalsIgnoreCase(rapidoTemplate.getDeliver_type().trim())) {
+                    imageTag = rapidoTemplate.getOwner();
+                    isBuildImage = true;
+                } else {
+                    throw new IllegalImageTagsException("Image tag can not be empty when build is specific in official deployment");
+                }
+            } else {
+                isBuildImage = true;
+            }
         }
-        if (imageTag != null) {
+        
+        if (isBuildImage) {
             DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
             imageName = rapidoTemplate.getRepository().getRepo() + "/" + imageName + ":" + imageTag;
             logger.info("Start to build image: {}", imageName);

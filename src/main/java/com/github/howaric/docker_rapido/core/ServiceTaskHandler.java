@@ -39,6 +39,9 @@ public class ServiceTaskHandler {
         Service service = rapidoTemplate.getServices().get(serviceName);
         String image = service.getImage();
         String imageName = image;
+        if (imageTag == null && rapidoTemplate.getDeliver_type().equalsIgnoreCase("development")) {
+            imageTag = rapidoTemplate.getOwner();
+        }
         if (imageTag != null) {
             DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
             imageName = rapidoTemplate.getRepository().getRepo() + "/" + imageName + ":" + imageTag;

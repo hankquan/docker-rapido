@@ -51,10 +51,17 @@ public class RapidoEngine {
         if ("official".equalsIgnoreCase(rapidoTemplate.getDeliver_type())) {
             if (!isDeclaredOfficial) {
                 throw new TemplateResolveException("You must use --official if you want to deliver an official deployment");
-            } else {
-                if (!"master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
-                    throw new TemplateResolveException("Official deployment only can be owned by master");
-                }
+            }
+        }
+
+        if (isDeclaredOfficial) {
+            if (!"official".equalsIgnoreCase(rapidoTemplate.getDeliver_type()) || !"master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
+                throw new TemplateResolveException("You must use official and master for an official deployment");
+            }
+        } else {
+            if ("official".equalsIgnoreCase(rapidoTemplate.getDeliver_type()) || "master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
+                throw new TemplateResolveException(
+                        "You can not use official or master for an development deployment, please use --official to declare this deployment as an official one");
             }
         }
 

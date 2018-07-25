@@ -43,7 +43,7 @@ public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
             String[] names = container.getNames();
             for (String name : names) {
                 String realName = name.substring(1);
-                if (!realName.contains("/") && realName.equals(getContainerNamePrefix())) {
+                if (!realName.contains("/") && realName.equals(generateContainerName())) {
                     current.add(container);
                     containerNames.add(realName);
                 }

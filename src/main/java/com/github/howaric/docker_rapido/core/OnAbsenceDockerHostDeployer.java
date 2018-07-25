@@ -10,46 +10,47 @@ import java.util.List;
 
 public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
 
-    private static Logger logger = LoggerFactory.getLogger(OnAbsenceDockerHostDeployer.class);
+	private static Logger logger = LoggerFactory.getLogger(OnAbsenceDockerHostDeployer.class);
 
-    @Override
-    protected void perform() {
-        if (CommonUtil.hasElement(current)) {
-            logger.info("Service {} has already existed, deployment skipped", serviceName);
-            return;
-        }
-        List<String> ports = service.getPorts();
-        List<String> environment = service.getEnvironment();
+	@Override
+	protected void perform() {
+		if (CommonUtil.hasElement(current)) {
+			logger.info("Service {} has already existed, deployment skipped", serviceName);
+			return;
+		}
 
-        dockerProxy.pullImage(imageName, repository.getUsername(), repository.getPassword());
+		dockerProxy.pullImage(imageName, repository.getUsername(), repository.getPassword());
+		String containerId = dockerProxy.createContainer(generateContainerName(),
+				imageName.contains(ServiceTaskHandler.LATEST) ? imageName.replace(ServiceTaskHandler.LATEST, "")
+						: imageName,
+				service.getPorts(), service.getEnvironment(), service.getLinks(), service.getVolumes(),
+				service.getExtra_hosts());
+		logger.info("create container: " + containerId);
+		dockerProxy.startContainer(containerId);
+		
+		// TODO how to check if container is ready
+	}
 
-        String containerId = dockerProxy.createContainer(generateContainerName(),
-                imageName.contains(ServiceTaskHandler.LATEST) ? imageName.replace(ServiceTaskHandler.LATEST, "") : imageName, ports,
-                environment, service.getLinks(), service.getVolumes(), service.getExtra_hosts());
-        logger.info("create container: " + containerId);
-        dockerProxy.startContainer(containerId);
-        // how to check if container is ready
-    }
+	@Override
+	protected String generateContainerName() {
+		return serviceName;
+	}
 
-    @Override
-    protected String generateContainerName() {
-        return serviceName;
-    }
-
-    protected void findCurrentContainers() {
-        List<Container> allRunningContainers = dockerProxy.listContainers(false);
-        List<String> containerNames = new ArrayList<>();
-        for (Container container : allRunningContainers) {
-            String[] names = container.getNames();
-            for (String name : names) {
-                String realName = name.substring(1);
-                if (!realName.contains("/") && realName.equals(generateContainerName())) {
-                    current.add(container);
-                    containerNames.add(realName);
-                }
-            }
-        }
-        logger.info("Find current containers: " + containerNames);
-    }
+	@Override
+	protected void findCurrentContainers() {
+		List<Container> allRunningContainers = dockerProxy.listContainers(false);
+		List<String> containerNames = new ArrayList<>();
+		for (Container container : allRunningContainers) {
+			String[] names = container.getNames();
+			for (String name : names) {
+				String realName = name.substring(1);
+				if (!realName.contains("/") && realName.equals(generateContainerName())) {
+					current.add(container);
+					containerNames.add(realName);
+				}
+			}
+		}
+		logger.info("Find current containers: " + containerNames);
+	}
 
 }

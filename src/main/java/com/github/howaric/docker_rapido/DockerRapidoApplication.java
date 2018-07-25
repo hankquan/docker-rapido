@@ -15,33 +15,33 @@ import java.io.File;
 @SpringBootApplication
 public class DockerRapidoApplication {
 
-    private static final String logDir = "log.dir";
-    private static final String DOCKER_RAPIDO = "docker-rapido";
+	private static final String logDir = "log.dir";
+	private static final String DOCKER_RAPIDO = "docker-rapido";
 
-    public static void main(String[] args) {
-        CliOptions cliOptions = new CliOptions();
-        JCommander jcommander = JCommander.newBuilder().addObject(cliOptions).build();
-        jcommander.parse(args);
-        jcommander.setProgramName(DOCKER_RAPIDO);
-        if (cliOptions.isHelp()) {
-            jcommander.usage();
-            return;
-        }
-        setLogDir(cliOptions);
-        Logger logger = LoggerFactory.getLogger(DockerRapidoApplication.class);
-        logger.info("Get cli params: " + cliOptions);
-        if (cliOptions.isWebMode()) {
-            SpringApplication.run(DockerRapidoApplication.class, args);
-        } else {
-            RapidoCliApplication.run(cliOptions);
-        }
-    }
+	public static void main(String[] args) {
+		CliOptions cliOptions = new CliOptions();
+		JCommander jcommander = JCommander.newBuilder().addObject(cliOptions).build();
+		jcommander.parse(args);
+		jcommander.setProgramName(DOCKER_RAPIDO);
+		if (cliOptions.isHelp() || cliOptions.needShowUsage()) {
+			jcommander.usage();
+			return;
+		}
+		setLogDir(cliOptions);
+		Logger logger = LoggerFactory.getLogger(DockerRapidoApplication.class);
+		logger.info("Get cli params: " + cliOptions);
+		if (cliOptions.isWebMode()) {
+			SpringApplication.run(DockerRapidoApplication.class, args);
+		} else {
+			RapidoCliApplication.run(cliOptions);
+		}
+	}
 
-    private static void setLogDir(CliOptions cliOptions) {
-        if (!Strings.isNullOrEmpty(cliOptions.getLogDir())) {
-            System.setProperty(logDir, cliOptions.getLogDir() + File.separator);
-        } else {
-            System.setProperty(logDir, "." + File.separator);
-        }
-    }
+	private static void setLogDir(CliOptions cliOptions) {
+		if (!Strings.isNullOrEmpty(cliOptions.getLogDir())) {
+			System.setProperty(logDir, cliOptions.getLogDir() + File.separator);
+		} else {
+			System.setProperty(logDir, "." + File.separator);
+		}
+	}
 }

@@ -1,0 +1,68 @@
+version: 1.0
+deliver_type: official
+owner: master
+remote_docker: tcp://10.62.49.229:6066
+repository:
+  url: armdocker.rnd.ericsson.se
+  prefix: sandbox
+  username: ebidteac
+  password: teacOnly1
+services:
+  mysql-enfm-log:
+    image: mysql
+    volumes:
+    - /teso/db/db-log:/var/lib/mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=logmanager
+    - MYSQL_USER=zenfmdbuser
+    - MYSQL_PASSWORD=Mypass1?
+    deploy:
+      placement:
+        constraints:
+        - node.name == demo-node1
+      deploy_policy: on-absence
+  mysql-enfm:
+    image: mysql
+    volumes:
+    - /teso/db/db-enfm:/var/lib/mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=zenfm
+    - MYSQL_USER=zenfmdbuser
+    - MYSQL_PASSWORD=Mypass1?
+    deploy:
+      placement:
+        constraints:
+        - node.name == demo-node1
+      deploy_policy: on-absence
+  enfm:
+    image: teso/enfm
+    build: /proj/atelteadm/jcat/logs/ebidteac/enfm/
+    publish_port: 9080
+    ports:
+    - 9090
+    environment:
+    - VMM_URL=http://seki30-bid-5g-docker.edn.ki.sw.ericsson.se:8080
+    - SPRING_BOOT_SPRING_CLOUD_CONSUL_HOST=10.62.158.26
+    links:
+    - mysql-enfm:com-ericsson-interface-zipper-teso-dbzenfm
+    - mysql-enfm-log:com-ericsson-interface-zipper-teso-dblog
+    extra_hosts:
+    - com-ericsson-interface-zipper-teso-zipkin:10.62.49.229
+    depends_on:
+    - mysql-enfm
+    - mysql-enfm-log
+    deploy:
+      deploy_policy: rolling-update
+      stop_timeout: 600
+      placement:
+        constraints:
+        - node.name == enfm-node
+      replicas: 1
+nodes:
+  enfm-node:
+    ip: 10.62.158.26
+    username: bidteac
+    password: teac2143
+    docker_port: 6066

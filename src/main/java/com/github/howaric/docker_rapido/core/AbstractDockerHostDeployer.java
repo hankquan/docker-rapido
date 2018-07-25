@@ -1,6 +1,7 @@
 package com.github.howaric.docker_rapido.core;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -79,9 +80,9 @@ public abstract class AbstractDockerHostDeployer implements DockerHostDeployer {
      * @param port
      * @return
      */
-    protected boolean isServiceOnPortReady(String port) {
+    protected boolean isServiceOnPortReady(String ip, String port) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = String.format(healthUrlTemplate, node.getIp(), port);
+        String url = String.format(healthUrlTemplate, ip, port);
         logger.info("Check url: {}", url);
         boolean isReady = false;
         for (int i = 0; i < 20; i++) {
@@ -112,4 +113,42 @@ public abstract class AbstractDockerHostDeployer implements DockerHostDeployer {
         }
     }
 
+    protected static final String consulCheckUrlTemplate = "http://%s:8500/v1/health/checks/%s";
+
+    protected boolean isContainerSuccessfullyRegisteredToConsul(String containerIp) {
+        String url = String.format(consulCheckUrlTemplate, node.getIp(), serviceName);
+        logger.info("Check url: {}", url);
+        RestTemplate restTemplate = new RestTemplate();
+        boolean isReady = false;
+        outer: for (int i = 0; i < 20; i++) {
+            try {
+                @SuppressWarnings("rawtypes")
+                ResponseEntity<List> result = restTemplate.getForEntity(url, List.class);
+                if (result.getStatusCode() == HttpStatus.OK) {
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, String>> checkList = result.getBody();
+                    for (Map<String, String> map : checkList) {
+                        String output = map.get("Output");
+                        if (output.contains(containerIp) && output.contains("UP")) {
+                            logger.info("output: {}", output);
+                            logger.info("Container is ready!");
+                            isReady = true;
+                            break outer;
+                        }
+                    }
+                    logger.warn("Not ready, continue to check...");
+                } else {
+                    logger.warn(result.getStatusCode() + ": " + result.getBody());
+                }
+            } catch (Exception e) {
+                logger.warn("Contact with consul failed, continue to check...");
+            }
+            CommonUtil.sleep(5000);
+        }
+        if (isReady) {
+            return isReady;
+        } else {
+            throw new ContainerStartingFailedException("Container is not healthy, starting failed");
+        }
+    }
 }

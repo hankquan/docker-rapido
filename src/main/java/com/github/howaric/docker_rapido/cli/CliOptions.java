@@ -5,11 +5,13 @@ import java.util.List;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.CommaParameterSplitter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 
 public class CliOptions {
 
 	@Parameter(names = { "--help", "-h" }, description = "Get command usage")
+	@JsonIgnore
 	private boolean help;
 
 	@Parameter(names = { "--web-mode" }, description = "Start docker-rapido as a rest service")
@@ -26,7 +28,7 @@ public class CliOptions {
 	private String templateFilePath;
 
 	@Parameter(names = { "-logdir" }, description = "Log folder where logs will be created, current folder as default")
-	private String logDir;
+	private String logDir = ".";
 
 	public boolean needShowUsage() {
 		if (Strings.isNullOrEmpty(templateFilePath)) {
@@ -87,9 +89,9 @@ public class CliOptions {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("CliOptions [help=").append(help).append(", webMode=").append(webMode)
-				.append(", isDeclareOfficial=").append(isDeclareOfficial).append(", imageTag=").append(imageTag)
-				.append(", templateFilePath=").append(templateFilePath).append(", logDir=").append(logDir).append("]");
+		builder.append("CliOptions [help=").append(help).append(", webMode=").append(webMode).append(", isDeclareOfficial=")
+				.append(isDeclareOfficial).append(", imageTag=").append(imageTag).append(", templateFilePath=").append(templateFilePath)
+				.append(", logDir=").append(logDir).append("]");
 		return builder.toString();
 	}
 

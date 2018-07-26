@@ -4,8 +4,6 @@ import javax.validation.constraints.Min;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.github.howaric.docker_rapido.core.DeployPolicy;
-
 public class Deploy {
 
 	private Placement placement;

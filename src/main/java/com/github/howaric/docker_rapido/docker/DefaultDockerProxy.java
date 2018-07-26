@@ -153,6 +153,7 @@ public class DefaultDockerProxy implements DockerProxy {
     @Override
     public String createContainer(String name, String imageNameWithTag, List<String> ports, List<String> envs, List<String> links,
             List<String> volumes, List<String> extraHosts) {
+        logger.info("Start to created container: {}", name);
         CreateContainerCmd cmd = dockerClient.createContainerCmd(imageNameWithTag).withName(name);
 
         if (CommonUtil.hasElement(ports)) {

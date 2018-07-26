@@ -13,8 +13,8 @@ public class RapidoTemplate {
     @Pattern(regexp = "^[0-9]{1}.[0-9]{1,2}$", message = "verion pattern is not correct, examlpe: 0.1, 1.0")
     private String version;
 
-    @NotBlank(message = "deliver_type can not be empty")
-    private String deliver_type;
+    @NotBlank(message = "delivery_type can not be empty")
+    private String delivery_type;
 
     @NotBlank(message = "owner can not be empty")
     private String owner;
@@ -79,18 +79,18 @@ public class RapidoTemplate {
         this.services = services;
     }
 
-    public String getDeliver_type() {
-        return deliver_type;
+    public String getDelivery_type() {
+        return delivery_type;
     }
 
-    public void setDeliver_type(String deliver_type) {
-        this.deliver_type = deliver_type;
+    public void setDelivery_type(String delivery_type) {
+        this.delivery_type = delivery_type;
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("RapidoTemplate [version=").append(version).append(", deliver_type=").append(deliver_type).append(", owner=")
+        builder.append("RapidoTemplate [version=").append(version).append(", delivery_type=").append(delivery_type).append(", owner=")
                 .append(owner).append(", repository=").append(repository).append(", remote_docker=").append(remote_docker)
                 .append(", services=").append(services).append(", nodes=").append(nodes).append("]");
         return builder.toString();

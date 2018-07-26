@@ -10,9 +10,8 @@ public class RapidoLogCentre {
     public static void successfulExit() {
         logger.info("");
         logger.info("+----------------------------------------------------------------------+");
-        logger.info("|                Delivery successfully finished!!!                     |");
-        logger.info("|    Thank you for using docker-rapido, any questions or suggestions   |");
-        logger.info("|    Please contact team sloth: PDLIDTAOTE@pdl.internal.ericsson.com   |");
+        logger.info("|                Delivery successfully finished.                       |");
+        logger.info("|     Thank you for using docker-rapido, have a nice day!              |");
         logger.info("+----------------------------------------------------------------------+");
     }
 

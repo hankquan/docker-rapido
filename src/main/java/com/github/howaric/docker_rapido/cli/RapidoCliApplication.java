@@ -23,7 +23,7 @@ public class RapidoCliApplication {
 			throw new TemplateResolveException("Failed to get template file");
 		}
 		try {
-			logger.info("Template yml content:\n\n{}\n", FileUtils.readFileToString(templateFile));
+			logger.info("Template yml content:\n\n{}\n", FileUtils.readFileToString(templateFile, "utf-8"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

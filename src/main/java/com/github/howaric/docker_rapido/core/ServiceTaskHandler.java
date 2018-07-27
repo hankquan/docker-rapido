@@ -22,7 +22,6 @@ public class ServiceTaskHandler {
     private List<Node> targetNodes;
     private String imageTag;
 
-    private String existedImageId;
     public static final String LATEST = ":latest";
 
     public ServiceTaskHandler(RapidoTemplate rapidoTemplate, String serviceName, List<Node> targetNodes, String imageTag) {
@@ -56,13 +55,14 @@ public class ServiceTaskHandler {
             }
         }
 
+        String existedImageId = null;
         DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
         if (isBuildImage) {
             imageName = rapidoTemplate.getRepository().getRepo() + "/" + imageName + ":" + imageTag;
             // remove if specific image has existed
             existedImageId = optDocker.isImageExited(imageName);
             logger.info("Find local image with same image-tag: {}, rapido will try to remove it", imageName);
-            tryRemoveImage(optDocker, existedImageId);
+            optDocker.tryToRemoveImage(existedImageId);
             logger.info("Start to build image: {}", imageName);
             String imageId = optDocker.buildImage(service.getBuild(), imageName);
             logger.info("Building successfully, imageId is {}", imageId);
@@ -83,18 +83,8 @@ public class ServiceTaskHandler {
             deployer.deploy(rapidoTemplate.getRepository(), rapidoTemplate.getDelivery_type(), rapidoTemplate.getOwner(), node, serviceName,
                     service, imageName);
         }
-        tryRemoveImage(optDocker, existedImageId);
+        optDocker.tryToRemoveImage(existedImageId);
         RapidoLogCentre.printInCentreWithStar("End service task");
-    }
-
-    private void tryRemoveImage(DockerProxy dockerProxy, String imageId) {
-        if (existedImageId != null) {
-            try {
-                dockerProxy.removeImage(existedImageId);
-            } catch (Exception e) {
-                logger.warn("Removing local image skipped for it is used by some other containers");
-            }
-        }
     }
 
 }

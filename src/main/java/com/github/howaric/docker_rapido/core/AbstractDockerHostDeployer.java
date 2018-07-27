@@ -51,7 +51,10 @@ public abstract class AbstractDockerHostDeployer implements DockerHostDeployer {
 		String dockerEndPoint = node.getDockerEndPoint();
 		dockerProxy = DockerProxyFactory.getInstance(dockerEndPoint);
 		findCurrentContainers();
+        String exitedImageId = dockerProxy.isImageExited(imageName);
+        dockerProxy.tryToRemoveImage(exitedImageId);
 		perform();
+		dockerProxy.tryToRemoveImage(exitedImageId);
 	}
 
 	protected abstract void perform();

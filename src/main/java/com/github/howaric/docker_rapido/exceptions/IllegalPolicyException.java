@@ -1,14 +1,14 @@
 package com.github.howaric.docker_rapido.exceptions;
 
-public class IllegalDeployPolicyException extends RuntimeException {
+public class IllegalPolicyException extends RuntimeException {
 
     private static final long serialVersionUID = -1157908936313548989L;
 
-    public IllegalDeployPolicyException() {
+    public IllegalPolicyException() {
         super();
     }
 
-    public IllegalDeployPolicyException(String message) {
+    public IllegalPolicyException(String message) {
         super(message);
     }
 

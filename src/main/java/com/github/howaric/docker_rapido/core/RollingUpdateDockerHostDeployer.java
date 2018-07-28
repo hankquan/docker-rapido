@@ -16,8 +16,9 @@ public class RollingUpdateDockerHostDeployer extends AbstractDockerHostDeployer 
         for (int i = 1; i <= replicas; i++) {
 
             dockerProxy.pullImage(imageName, repository.getUsername(), repository.getPassword());
-            String containerId = dockerProxy.createContainer(generateContainerName(), imageName, service.getPorts(),
-                    service.getEnvironment(), service.getLinks(), service.getVolumes(), service.getExtra_hosts());
+            String containerId = dockerProxy.createContainer(generateContainerName(), imageName,
+                    service.getDeploy().getRestart_policy().getCondition(), service.getPorts(), service.getEnvironment(),
+                    service.getLinks(), service.getVolumes(), service.getExtra_hosts());
             dockerProxy.startContainer(containerId);
 
             if (!Strings.isNullOrEmpty(service.getBuild())) {

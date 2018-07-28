@@ -24,6 +24,7 @@ import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.Link;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.PushResponseItem;
+import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -152,8 +153,8 @@ public class DefaultDockerProxy implements DockerProxy {
     }
 
     @Override
-    public String createContainer(String name, String imageNameWithTag, List<String> ports, List<String> envs, List<String> links,
-            List<String> volumes, List<String> extraHosts) {
+    public String createContainer(String name, String imageNameWithTag, String restartPolicy, List<String> ports, List<String> envs,
+            List<String> links, List<String> volumes, List<String> extraHosts) {
         logger.info("Start to created container: {}", name);
         CreateContainerCmd cmd = dockerClient.createContainerCmd(imageNameWithTag).withName(name);
 
@@ -220,6 +221,10 @@ public class DefaultDockerProxy implements DockerProxy {
             cmd = cmd.withExtraHosts(extraHosts);
         }
 
+        if (!Strings.isNullOrEmpty(restartPolicy)) {
+            cmd = cmd.withRestartPolicy(RestartPolicy.parse(restartPolicy));
+        }
+
         String containerId = cmd.exec().getId();
         logger.info("Created containerId {}", containerId);
         return containerId;
@@ -249,7 +254,7 @@ public class DefaultDockerProxy implements DockerProxy {
             dockerClient.removeImageCmd(imageId).exec();
             logger.info("Image {} Removing successfully", imageId);
         } catch (Exception e) {
-            logger.warn("Removing local image skipped for it is used by some other containers");
+            logger.debug("Removing local image skipped for it is used by some other containers");
         }
     }
 }

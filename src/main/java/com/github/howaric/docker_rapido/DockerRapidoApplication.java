@@ -19,7 +19,6 @@ public class DockerRapidoApplication {
     private static final String DOCKER_RAPIDO = "docker-rapido";
 
     public static void main(String[] args) {
-        printBanner();
         CliOptions cliOptions = new CliOptions();
         JCommander jcommander = JCommander.newBuilder().addObject(cliOptions).build();
         jcommander.parse(args);
@@ -29,6 +28,7 @@ public class DockerRapidoApplication {
             return;
         }
         setLogDir(cliOptions);
+        printBanner();
         RapidoLogCentre.printLinsInBox(Arrays.asList("IsDeclaredOfficial: " + cliOptions.isDeclareOfficial(),
                 "TemplateFile: " + cliOptions.getTemplateFilePath(), "ToBuildImageTag: " + cliOptions.getImageTag()));
         if (cliOptions.isWebMode()) {

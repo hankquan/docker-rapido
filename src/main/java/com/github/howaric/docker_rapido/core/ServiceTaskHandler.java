@@ -58,7 +58,7 @@ public class ServiceTaskHandler {
         String existedImageId = null;
         DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
         if (isBuildImage) {
-            imageName = rapidoTemplate.getRepository().getRepo() + "/" + imageName + ":" + imageTag;
+            imageName = rapidoTemplate.getRepository().repo() + "/" + imageName + ":" + imageTag;
             // remove if specific image has existed
             existedImageId = optDocker.isImageExited(imageName);
             logger.info("Find local image with same image-tag: {}, rapido will try to remove it", imageName);

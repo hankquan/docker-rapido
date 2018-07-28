@@ -22,7 +22,7 @@ public class Service {
     @Valid
     private Deploy deploy;
 
-    public Integer getFirstExposedPort() {
+    public Integer firstExposedPort() {
         for (String port : ports) {
             if (!port.contains(":")) {
                 return Integer.valueOf(port);

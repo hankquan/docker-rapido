@@ -20,7 +20,7 @@ public class Placement {
 	}
 
 	// "constraints" : [ "node.name == demo-node1", "node.labels.site == Ki" ]
-	public List<Node> getNodes(Map<String, Node> nodes) {
+	public List<Node> targetNodes(Map<String, Node> nodes) {
 		List<Node> result = new ArrayList<>();
 		for (String constraint : constraints) {
 			String[] split = constraint.split("==");

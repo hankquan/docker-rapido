@@ -9,7 +9,7 @@ public class Repository {
     private String username;
     private String password;
 
-    public String getRepo() {
+    public String repo() {
         if (Strings.isNullOrEmpty(prefix)) {
             return url;
         } else {

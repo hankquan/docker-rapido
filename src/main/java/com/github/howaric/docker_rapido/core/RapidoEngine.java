@@ -2,6 +2,7 @@ package com.github.howaric.docker_rapido.core;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.howaric.docker_rapido.docker.RestartPolicy;
 import com.github.howaric.docker_rapido.exceptions.IllegalImageTagsException;
+import com.github.howaric.docker_rapido.exceptions.IllegalPolicyException;
 import com.github.howaric.docker_rapido.exceptions.TemplateResolveException;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
 import com.github.howaric.docker_rapido.utils.RapidoLogCentre;
@@ -42,6 +45,9 @@ public class RapidoEngine {
         if (rapidoTemplate == null) {
             throw new TemplateResolveException("Failed to parse template to yaml bean");
         }
+
+        logger.info("Rapido template:\n\n{}\n", CommonUtil.prettyJson(rapidoTemplate));
+
         Map<String, StringBuffer> validate = ValidatorUtil.validate(rapidoTemplate);
         if (validate != null) {
             throw new TemplateResolveException("Yaml bean validation failed: \n{}" + CommonUtil.prettyJson(validate));
@@ -49,11 +55,21 @@ public class RapidoEngine {
 
         // TODO more detailed validation
         String deliveryType = rapidoTemplate.getDelivery_type();
-        logger.info("Delivery_type is {}", deliveryType);
         if (!DeliveryType.isDeliveryTypeLegal(deliveryType)) {
-            throw new TemplateResolveException("Unsupported delivery_type, optionals:" + DeliveryType.supportedTypes());
+            throw new TemplateResolveException(
+                    "Unsupported delivery type: " + deliveryType + ", optionals:" + DeliveryType.supportedTypes());
         }
 
+        Map<String, Service> services = rapidoTemplate.getServices();
+        Collection<Service> servicesInfo = services.values();
+        for (Service service : servicesInfo) {
+            String condition = service.getDeploy().getRestart_policy().getCondition();
+            if (!RestartPolicy.isRestartPolicyLegal(condition)) {
+                throw new IllegalPolicyException(
+                        "Unsupported restart policy: " + condition + ", optionals: " + RestartPolicy.supportedTypes());
+            }
+
+        }
         if (isDeclaredOfficial) {
             if (!DeliveryType.isOfficial(deliveryType) || !"master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
                 throw new TemplateResolveException("You must use official and master for an official deployment");
@@ -70,7 +86,6 @@ public class RapidoEngine {
 
         // TODO check node connectivity
 
-        Map<String, Service> services = rapidoTemplate.getServices();
         Map<String, Node> nodes = rapidoTemplate.getNodes();
         List<ServiceTaskHandler> serviceTaskHandlers = new ArrayList<>();
         for (int i = 0; i < orderedServices.size(); i++) {
@@ -79,7 +94,7 @@ public class RapidoEngine {
                                                         // details
             List<Node> targetNodes = null;
             if (service.getDeploy() != null) {// target nodes
-                targetNodes = service.getDeploy().getPlacement().getNodes(nodes);
+                targetNodes = service.getDeploy().getPlacement().targetNodes(nodes);
             }
             String imageTag = null;
             if (service.getBuild() != null) {// need build image

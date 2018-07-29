@@ -1,4 +1,4 @@
-package com.github.howaric.docker_rapido.cli;
+package com.github.howaric.docker_rapido.core;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,10 @@ public class CliOptions {
 
 	@Parameter(names = { "--official" }, description = "Declare --official if this is an official deployment")
 	private boolean isDeclareOfficial;
+
+	@Parameter(names = {
+			"--rollback" }, description = "Declare that it is a deployment for rollback, rapido will skip image building and use the specific image-tag to accomplish this deployment")
+	private boolean isRollback;
 
 	@Parameter(names = { "--image-tag",
 			"-it" }, description = "Image tags: 0.0.1-snapshot, specify service name if there are more than one as app1:0.0.1,app2:0.0.3", splitter = CommaParameterSplitter.class)
@@ -52,6 +56,14 @@ public class CliOptions {
 
 	public void setWebMode(boolean webMode) {
 		this.webMode = webMode;
+	}
+
+	public boolean isRollback() {
+		return isRollback;
+	}
+
+	public void setRollback(boolean isRollback) {
+		this.isRollback = isRollback;
 	}
 
 	public boolean isDeclareOfficial() {
@@ -90,8 +102,8 @@ public class CliOptions {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("CliOptions [help=").append(help).append(", webMode=").append(webMode).append(", isDeclareOfficial=")
-				.append(isDeclareOfficial).append(", imageTag=").append(imageTag).append(", templateFilePath=").append(templateFilePath)
-				.append(", logDir=").append(logDir).append("]");
+				.append(isDeclareOfficial).append(", isRollback=").append(isRollback).append(", imageTag=").append(imageTag)
+				.append(", templateFilePath=").append(templateFilePath).append(", logDir=").append(logDir).append("]");
 		return builder.toString();
 	}
 

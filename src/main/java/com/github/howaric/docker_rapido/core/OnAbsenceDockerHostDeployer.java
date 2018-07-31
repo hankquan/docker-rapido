@@ -2,6 +2,8 @@ package com.github.howaric.docker_rapido.core;
 
 import com.github.dockerjava.api.model.Container;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
+import com.google.common.base.Strings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +20,10 @@ public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
             logger.info("Service {} has already existed, deployment skipped", serviceName);
             return;
         }
-
-        dockerProxy.pullImage(imageName, repository.getUsername(), repository.getPassword());
+        String imageExited = dockerProxy.isImageExited(imageName);
+        if (Strings.isNullOrEmpty(imageExited)) {
+            dockerProxy.pullImage(imageName, repository.getUsername(), repository.getPassword());
+        }
         String containerId = dockerProxy.createContainer(generateContainerName(),
                 imageName.contains(ServiceTaskHandler.LATEST) ? imageName.replace(ServiceTaskHandler.LATEST, "") : imageName,
                 service.getDeploy().getRestart_policy().getCondition(), service.getPorts(), service.getEnvironment(), service.getLinks(),
@@ -27,6 +31,7 @@ public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
         dockerProxy.startContainer(containerId);
 
         // TODO how to check if container is ready
+        // wait 10s to check if this container is still running in docker
     }
 
     @Override

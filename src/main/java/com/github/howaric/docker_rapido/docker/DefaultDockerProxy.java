@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +19,9 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.BuildResponseItem;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.Link;
-import com.github.dockerjava.api.model.Network;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.PushResponseItem;
 import com.github.dockerjava.api.model.RestartPolicy;
@@ -31,9 +30,12 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
+import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.PushImageResultCallback;
+import com.github.howaric.docker_rapido.exceptions.ContainerStartingFailedException;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
+import com.google.common.base.Strings;
 
 public class DefaultDockerProxy implements DockerProxy {
 
@@ -159,7 +161,7 @@ public class DefaultDockerProxy implements DockerProxy {
             List<String> links, List<String> volumes, List<String> extraHosts) {
         logger.info("Start to created container: {}", name);
         CreateContainerCmd cmd = dockerClient.createContainerCmd(imageNameWithTag).withName(name);
-        
+
         if (CommonUtil.hasElement(ports)) {
             List<ExposedPort> exposePortList = new ArrayList<>();
             Ports portBindings = new Ports();
@@ -228,18 +230,19 @@ public class DefaultDockerProxy implements DockerProxy {
         }
         String containerId = cmd.exec().getId();
         logger.info("Created containerId {}", containerId);
-//        String networkName = "docker_gwbridge";
-//        if (!Strings.isNullOrEmpty(networkName)) {
-//            List<Network> networks = dockerClient.listNetworksCmd().exec();
-//            for (Network network : networks) {
-//                System.out.println(network.getName());
-//                if (network.getName().equalsIgnoreCase(networkName)) {
-//                    dockerClient.connectToNetworkCmd().withContainerId(containerId).withNetworkId(network.getId()).exec();
-//                    logger.info("Successfully connect container {} to network {}", name, networkName);
-//                    break;
-//                }
-//            }
-//        }
+        // String networkName = "docker_gwbridge";
+        // if (!Strings.isNullOrEmpty(networkName)) {
+        // List<Network> networks = dockerClient.listNetworksCmd().exec();
+        // for (Network network : networks) {
+        // System.out.println(network.getName());
+        // if (network.getName().equalsIgnoreCase(networkName)) {
+        // dockerClient.connectToNetworkCmd().withContainerId(containerId).withNetworkId(network.getId()).exec();
+        // logger.info("Successfully connect container {} to network {}", name,
+        // networkName);
+        // break;
+        // }
+        // }
+        // }
         return containerId;
     }
 
@@ -268,6 +271,31 @@ public class DefaultDockerProxy implements DockerProxy {
             logger.info("Image {} Removing successfully", imageId);
         } catch (Exception e) {
             logger.debug("Removing local image skipped for it is used by some other containers");
+        }
+    }
+
+    @Override
+    public void printLogs(String containerId) {
+        FrameReaderCallback collectFramesCallback = new FrameReaderCallback();
+        try {
+            dockerClient.logContainerCmd(containerId).withStdOut(true).withStdErr(true).withTailAll().exec(collectFramesCallback)
+                    .awaitCompletion();
+            List<Frame> loggingFrames = collectFramesCallback.frames;
+            for (Frame frame : loggingFrames) {
+                System.out.println(frame.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ContainerStartingFailedException(e.getMessage());
+        }
+    }
+
+    public static class FrameReaderCallback extends LogContainerResultCallback {
+        public List<Frame> frames = new ArrayList<>();
+
+        @Override
+        public void onNext(Frame item) {
+            frames.add(item);
         }
     }
 }

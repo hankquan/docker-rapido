@@ -32,4 +32,6 @@ public interface DockerProxy {
     void removeContainer(String containerId);
 
     InspectContainerResponse inspectContainer(String containerId);
+    
+    void printLogs(String containerId);
 }

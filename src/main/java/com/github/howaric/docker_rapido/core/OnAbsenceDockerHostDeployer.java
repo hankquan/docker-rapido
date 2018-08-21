@@ -1,6 +1,8 @@
 package com.github.howaric.docker_rapido.core;
 
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
+import com.github.howaric.docker_rapido.exceptions.ContainerStartingFailedException;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
 import com.google.common.base.Strings;
 
@@ -30,8 +32,18 @@ public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
                 service.getVolumes(), service.getExtra_hosts());
         dockerProxy.startContainer(containerId);
 
-        // TODO how to check if container is ready
-        // wait 10s to check if this container is still running in docker
+        CommonUtil.sleep(15000);
+        // check if still running
+        /*
+        InspectContainerResponse inspectContainer = dockerProxy.inspectContainer(containerId);
+        String status = inspectContainer.getState().getStatus();
+        if (!isContainerUp(status)) {
+            throw new ContainerStartingFailedException("Starting " + serviceName + " failed");
+        } 
+         */
+        
+        // print logs
+        //printContainerStartingLogs(containerId);
     }
 
     @Override

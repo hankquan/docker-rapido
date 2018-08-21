@@ -51,7 +51,11 @@ public class DockerRapidoApplication {
         for (Field field : fields) {
             field.setAccessible(true);
             try {
-                String value = field.get(cliOptions).toString();
+                Object object = field.get(cliOptions);
+                if (object == null) {
+                    continue;
+                }
+                String value = object.toString();
                 if (!Strings.isNullOrEmpty(value)) {
                     lines.add(field.getName() + ": " + value);
                 }

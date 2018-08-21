@@ -7,6 +7,8 @@ import javax.validation.constraints.Min;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.google.common.base.Strings;
+
 public class Node {
 
     @NotBlank(message = "version can not be empty")
@@ -24,12 +26,19 @@ public class Node {
 
     private static final String endPointTemplate = "tcp://%s:%s";
 
-    public boolean hasLabel(String key, String value) {
+    public boolean hasLabel(String key, String value, String nodeLabel) {
         if (labels == null) {
             return false;
         }
-        if (labels.contains(key + "=" + value)) {
-            return true;
+        String label = key + "=" + value;
+        if (labels.contains(label)) {
+            if (!Strings.isNullOrEmpty(nodeLabel)) {
+                if (nodeLabel.equals(label)) {
+                    return true;
+                }
+            } else {
+                return true;
+            }
         }
         return false;
     }

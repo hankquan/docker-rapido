@@ -112,8 +112,12 @@ public class RapidoLogCentre {
 	}
 
 	public static void successfulExit() {
-		logger.info("");
+	    printEmptyLine();
 		printLinsInBox(Arrays.asList("Delivery successfully finished.", "Thank you for using docker-rapido, have a nice day!"));
+	}
+	
+	public static void printEmptyLine() {
+	    logger.info("");
 	}
 	
 }

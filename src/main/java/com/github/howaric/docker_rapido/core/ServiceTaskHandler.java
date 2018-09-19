@@ -37,7 +37,7 @@ public class ServiceTaskHandler {
     }
 
     public void runTask() {
-        logger.info("");
+        RapidoLogCentre.printEmptyLine();
         RapidoLogCentre.printInCentreWithStar("Start service task: " + serviceName);
         logger.info("Get service task: {}, to build image-tag: {}, rapido will deploy this service to nodes: {}", serviceName, imageTag,
                 targetNodes);
@@ -46,7 +46,11 @@ public class ServiceTaskHandler {
         String imageName = service.getImage();
 
         boolean isBuildImage = false;
-        if (service.getBuild() != null && !isRollback) {
+
+        if (isRollback) {
+            imageName = combineImageNameWithRapoAndTag(imageName);
+            isBuildImage = false;
+        } else if (service.getBuild() != null) {
             if (imageTag == null) {
                 if (DeliveryType.isDevelopmental(rapidoTemplate.getDelivery_type())) {
                     imageTag = rapidoTemplate.getOwner();
@@ -59,19 +63,20 @@ public class ServiceTaskHandler {
             }
         }
 
-        if (isRollback) {
+        DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
+        String existedImageId = optDocker.isImageExited(combineImageNameWithRapoAndTag(imageName));
+        if (isBuildImage && existedImageId != null) {
             imageName = combineImageNameWithRapoAndTag(imageName);
-            isBuildImage = false;
+            if (DeliveryType.isOfficial(rapidoTemplate.getDelivery_type())) {
+                isBuildImage = false;
+            } else {
+                // remove if specific image has existed
+                logger.info("Find local image with same image-tag: {}, rapido will try to remove it", imageName);
+                optDocker.tryToRemoveImage(existedImageId);
+            }
         }
 
-        String existedImageId = null;
-        DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
         if (isBuildImage) {
-            imageName = combineImageNameWithRapoAndTag(imageName);
-            // remove if specific image has existed
-            existedImageId = optDocker.isImageExited(imageName);
-            logger.info("Find local image with same image-tag: {}, rapido will try to remove it", imageName);
-            optDocker.tryToRemoveImage(existedImageId);
             logger.info("Start to build image: {}", imageName);
             String imageId = optDocker.buildImage(service.getBuild(), imageName);
             logger.info("Building successfully, imageId is {}", imageId);

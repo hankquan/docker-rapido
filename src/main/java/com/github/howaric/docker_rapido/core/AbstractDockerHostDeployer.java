@@ -184,12 +184,12 @@ public abstract class AbstractDockerHostDeployer implements DockerHostDeployer {
     }
 
     protected void printContainerStartingLogs(String containerId) {
-        logger.info("");
+        RapidoLogCentre.printEmptyLine();
         RapidoLogCentre.printInCentreWithStar("LOGS OF CONTAINER " + containerId);
         System.out.println("");
         dockerProxy.printLogs(containerId);
         System.out.println("");
         RapidoLogCentre.printInCentreWithStar("LOGS END");
-        logger.info("");
+        RapidoLogCentre.printEmptyLine();
     }
 }

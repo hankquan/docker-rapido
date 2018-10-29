@@ -6,32 +6,34 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
 
 public interface DockerProxy {
-    String buildImage(String localDockerfilePath, String... imageTag);
+	String buildImage(String localDockerfilePath, String... imageTag);
 
-    void pushImage(String imageNameWithRepoAndTag, String username, String password);
+	void pushImage(String imageNameWithRepoAndTag, String username, String password);
 
-    void pullImage(String imageNameWithTag, String username, String password);
+	void pullImage(String imageNameWithTag, String username, String password);
 
-    void removeImage(String imageId);
+	void tagImage(String imageId, String imageNameWithRepo, String tag);
 
-    void tryToRemoveImage(String imageId);
+	void removeImage(String imageId);
 
-    String isImageExited(String imageNameWithTag);
+	void tryToRemoveImage(String imageId);
 
-    List<Container> listContainers(boolean isShowAll);
+	String isImageExited(String imageNameWithTag);
 
-    void stopContainer(String containerId, Integer timeout);
+	List<Container> listContainers(boolean isShowAll);
 
-    void startContainer(String containerId);
+	void stopContainer(String containerId, Integer timeout);
 
-    void restartContainer(String containerId);
+	void startContainer(String containerId);
 
-    String createContainer(String name, String imageNameWithTag, String restartPolicy, List<String> ports, List<String> envs,
-            List<String> links, List<String> volumes, List<String> extraHosts);
+	void restartContainer(String containerId);
 
-    void removeContainer(String containerId);
+	String createContainer(String name, String imageNameWithTag, String restartPolicy, List<String> ports, List<String> envs,
+			List<String> links, List<String> volumes, List<String> extraHosts);
 
-    InspectContainerResponse inspectContainer(String containerId);
-    
-    void printLogs(String containerId);
+	void removeContainer(String containerId);
+
+	InspectContainerResponse inspectContainer(String containerId);
+
+	void printLogs(String containerId);
 }

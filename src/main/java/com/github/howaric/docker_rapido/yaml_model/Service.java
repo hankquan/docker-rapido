@@ -8,117 +8,136 @@ import org.hibernate.validator.constraints.NotBlank;
 
 public class Service {
 
-    @NotBlank(message = "image can not be null")
-    private String image;
-    private String build;
-    private String publish_port;
-    private List<String> ports;
-    private List<String> extra_hosts;
-    private List<String> depends_on;
-    private List<String> volumes;
-    private List<String> environment;
-    private List<String> links;
+	@NotBlank(message = "image can not be null")
+	private String image;
+	private String build;
+	private String publish_port;
+	private String network;
+	private List<String> ports;
+	private List<String> extra_hosts;
+	private List<String> depends_on;
+	private List<String> volumes;
+	private List<String> environment;
+	private List<String> links;
+	private List<String> commands;
 
-    @Valid
-    private Deploy deploy;
+	@Valid
+	private Deploy deploy;
 
-    public Integer firstExposedPort() {
-        for (String port : ports) {
-            if (!port.contains(":")) {
-                return Integer.valueOf(port);
-            }
-        }
-        return 0;
-    }
+	public Integer firstExposedPort() {
+		for (String port : ports) {
+			if (!port.contains(":")) {
+				return Integer.valueOf(port);
+			}
+		}
+		return 0;
+	}
 
-    public String getPublish_port() {
-        return publish_port;
-    }
+	public String getNetwork() {
+		return network;
+	}
 
-    public void setPublish_port(String publish_port) {
-        this.publish_port = publish_port;
-    }
+	public void setNetwork(String network) {
+		this.network = network;
+	}
 
-    public String getBuild() {
-        return build;
-    }
+	public String getPublish_port() {
+		return publish_port;
+	}
 
-    public void setBuild(String build) {
-        this.build = build;
-    }
+	public void setPublish_port(String publish_port) {
+		this.publish_port = publish_port;
+	}
 
-    public Deploy getDeploy() {
-        return deploy;
-    }
+	public String getBuild() {
+		return build;
+	}
 
-    public void setDeploy(Deploy deploy) {
-        this.deploy = deploy;
-    }
+	public void setBuild(String build) {
+		this.build = build;
+	}
 
-    public String getImage() {
-        return image;
-    }
+	public Deploy getDeploy() {
+		return deploy;
+	}
 
-    public void setImage(String image) {
-        this.image = image;
-    }
+	public void setDeploy(Deploy deploy) {
+		this.deploy = deploy;
+	}
 
-    public List<String> getPorts() {
-        return ports;
-    }
+	public String getImage() {
+		return image;
+	}
 
-    public void setPorts(List<String> ports) {
-        this.ports = ports;
-    }
+	public void setImage(String image) {
+		this.image = image;
+	}
 
-    public List<String> getExtra_hosts() {
-        return extra_hosts;
-    }
+	public List<String> getPorts() {
+		return ports;
+	}
 
-    public void setExtra_hosts(List<String> extra_hosts) {
-        this.extra_hosts = extra_hosts;
-    }
+	public void setPorts(List<String> ports) {
+		this.ports = ports;
+	}
 
-    public List<String> getDepends_on() {
-        return depends_on;
-    }
+	public List<String> getExtra_hosts() {
+		return extra_hosts;
+	}
 
-    public void setDepends_on(List<String> depends_on) {
-        this.depends_on = depends_on;
-    }
+	public void setExtra_hosts(List<String> extra_hosts) {
+		this.extra_hosts = extra_hosts;
+	}
 
-    public List<String> getVolumes() {
-        return volumes;
-    }
+	public List<String> getDepends_on() {
+		return depends_on;
+	}
 
-    public void setVolumes(List<String> volumes) {
-        this.volumes = volumes;
-    }
+	public void setDepends_on(List<String> depends_on) {
+		this.depends_on = depends_on;
+	}
 
-    public List<String> getEnvironment() {
-        return environment;
-    }
+	public List<String> getVolumes() {
+		return volumes;
+	}
 
-    public void setEnvironment(List<String> environment) {
-        this.environment = environment;
-    }
+	public void setVolumes(List<String> volumes) {
+		this.volumes = volumes;
+	}
 
-    public List<String> getLinks() {
-        return links;
-    }
+	public List<String> getEnvironment() {
+		return environment;
+	}
 
-    public void setLinks(List<String> links) {
-        this.links = links;
-    }
+	public void setEnvironment(List<String> environment) {
+		this.environment = environment;
+	}
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Service [image=").append(image).append(", build=").append(build).append(", publish_port=").append(publish_port)
-                .append(", ports=").append(ports).append(", extra_hosts=").append(extra_hosts).append(", depends_on=").append(depends_on)
-                .append(", volumes=").append(volumes).append(", environment=").append(environment).append(", links=").append(links)
-                .append(", deploy=").append(deploy).append("]");
-        return builder.toString();
-    }
+	public List<String> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<String> links) {
+		this.links = links;
+	}
+
+	public List<String> getCommands() {
+		return commands;
+	}
+
+	public void setCommands(List<String> commands) {
+		this.commands = commands;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Service [image=").append(image).append(", build=").append(build).append(", publish_port=").append(publish_port)
+				.append(", network=").append(network).append(", ports=").append(ports).append(", extra_hosts=").append(extra_hosts)
+				.append(", depends_on=").append(depends_on).append(", volumes=").append(volumes).append(", environment=")
+				.append(environment).append(", links=").append(links).append(", commands=").append(commands).append(", deploy=")
+				.append(deploy).append("]");
+		return builder.toString();
+	}
 
 }

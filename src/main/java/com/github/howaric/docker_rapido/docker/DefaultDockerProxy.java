@@ -56,12 +56,14 @@ public class DefaultDockerProxy implements DockerProxy {
 
 	private String formatDockerHostInfo(Info info) {
 		StringBuilder result = new StringBuilder();
+		result.append("\n*********************************");
 		result.append("\nHostname: " + info.getName());
 		result.append("\nDocker version: " + info.getServerVersion());
 		result.append("\nImages: " + info.getImages());
 		result.append("\nContainers: " + info.getContainers());
 		result.append("\nContainers Running: " + info.getContainersRunning());
 		result.append("\nContainers Stopped: " + info.getContainersStopped());
+		result.append("\n*********************************");
 		return result.toString();
 	}
 
@@ -175,8 +177,8 @@ public class DefaultDockerProxy implements DockerProxy {
 	}
 
 	@Override
-	public String createContainer(String name, String imageNameWithTag, String restartPolicy, List<String> ports, List<String> envs,
-			List<String> links, List<String> volumes, List<String> extraHosts) {
+	public String createContainer(String name, String imageNameWithTag, String restartPolicy, String networkMode, List<String> ports,
+			List<String> envs, List<String> links, List<String> volumes, List<String> extraHosts, List<String> commands) {
 		logger.info("Start to created container: {}", name);
 		CreateContainerCmd cmd = dockerClient.createContainerCmd(imageNameWithTag).withName(name);
 
@@ -207,6 +209,14 @@ public class DefaultDockerProxy implements DockerProxy {
 
 		if (CommonUtil.hasElement(envs)) {
 			cmd = cmd.withEnv(envs);
+		}
+
+		if (!Strings.isNullOrEmpty(networkMode)) {
+			cmd = cmd.withNetworkMode(networkMode);
+		}
+
+		if (CommonUtil.hasElement(commands)) {
+			cmd = cmd.withCmd(commands);
 		}
 
 		List<Link> linkList = new ArrayList<>();
@@ -248,19 +258,6 @@ public class DefaultDockerProxy implements DockerProxy {
 		}
 		String containerId = cmd.exec().getId();
 		logger.info("Created containerId {}", containerId);
-		// String networkName = "docker_gwbridge";
-		// if (!Strings.isNullOrEmpty(networkName)) {
-		// List<Network> networks = dockerClient.listNetworksCmd().exec();
-		// for (Network network : networks) {
-		// System.out.println(network.getName());
-		// if (network.getName().equalsIgnoreCase(networkName)) {
-		// dockerClient.connectToNetworkCmd().withContainerId(containerId).withNetworkId(network.getId()).exec();
-		// logger.info("Successfully connect container {} to network {}", name,
-		// networkName);
-		// break;
-		// }
-		// }
-		// }
 		return containerId;
 	}
 

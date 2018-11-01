@@ -28,8 +28,8 @@ public interface DockerProxy {
 
 	void restartContainer(String containerId);
 
-	String createContainer(String name, String imageNameWithTag, String restartPolicy, List<String> ports, List<String> envs,
-			List<String> links, List<String> volumes, List<String> extraHosts);
+	String createContainer(String name, String imageNameWithTag, String restartPolicy, String networkMode, List<String> ports, List<String> envs,
+			List<String> links, List<String> volumes, List<String> extraHosts, List<String> commands);
 
 	void removeContainer(String containerId);
 

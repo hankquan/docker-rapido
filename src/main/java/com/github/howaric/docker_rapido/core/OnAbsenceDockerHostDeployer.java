@@ -1,16 +1,14 @@
 package com.github.howaric.docker_rapido.core;
 
-import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.model.Container;
-import com.github.howaric.docker_rapido.exceptions.ContainerStartingFailedException;
-import com.github.howaric.docker_rapido.utils.CommonUtil;
-import com.google.common.base.Strings;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.github.dockerjava.api.model.Container;
+import com.github.howaric.docker_rapido.utils.CommonUtil;
+import com.google.common.base.Strings;
 
 public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
 
@@ -21,18 +19,18 @@ public class OnAbsenceDockerHostDeployer extends AbstractDockerHostDeployer {
         if (CommonUtil.hasElement(current)) {
             logger.info("Service {} has already existed, deployment skipped", serviceName);
             return;
-        }
-        String imageExited = dockerProxy.isImageExited(imageName);
-        if (Strings.isNullOrEmpty(imageExited)) {
-            dockerProxy.pullImage(imageName, repository.getUsername(), repository.getPassword());
-        }
-        String containerId = dockerProxy.createContainer(generateContainerName(),
-                imageName.contains(ServiceTaskHandler.LATEST) ? imageName.replace(ServiceTaskHandler.LATEST, "") : imageName,
-                service.getDeploy().getRestart_policy().getCondition(), service.getPorts(), service.getEnvironment(), service.getLinks(),
-                service.getVolumes(), service.getExtra_hosts());
-        dockerProxy.startContainer(containerId);
+		}
+		String imageExited = dockerProxy.isImageExited(imageName);
+		if (Strings.isNullOrEmpty(imageExited)) {
+			dockerProxy.pullImage(imageName, repository.getUsername(), repository.getPassword());
+		}
+		String containerId = dockerProxy.createContainer(generateContainerName(),
+				imageName.contains(ServiceTaskHandler.LATEST) ? imageName.replace(ServiceTaskHandler.LATEST, "") : imageName,
+				service.getDeploy().getRestart_policy().getCondition(), service.getNetwork(), service.getPorts(), service.getEnvironment(),
+				service.getLinks(), service.getVolumes(), service.getExtra_hosts(), service.getCommands());
+		dockerProxy.startContainer(containerId);
 
-        CommonUtil.sleep(15000);
+		CommonUtil.sleep(15000);
         // check if still running
         /*
         InspectContainerResponse inspectContainer = dockerProxy.inspectContainer(containerId);

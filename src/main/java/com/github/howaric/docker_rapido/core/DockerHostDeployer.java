@@ -6,7 +6,7 @@ import com.github.howaric.docker_rapido.yaml_model.Service;
 
 public interface DockerHostDeployer {
 
-    void deploy(Repository repository, String deployType, String owner, Node node, String serviceName, Service service,
+    void deploy(Repository repository, DeliveryType deliveryType, String owner, Node node, String serviceName, Service service,
             String imageNameWithRepoAndTag);
 
 }

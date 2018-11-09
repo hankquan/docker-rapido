@@ -113,7 +113,7 @@ public class RapidoLogCentre {
 
 	public static void successfulExit() {
 	    printEmptyLine();
-		printLinsInBox(Arrays.asList("Delivery successfully finished.", "Thank you for using docker-rapido, have a nice day!"));
+		printLinsInBox(Arrays.asList("Task successfully finished.", "Thank you for using docker-rapido, have a nice day!"));
 	}
 	
 	public static void printEmptyLine() {

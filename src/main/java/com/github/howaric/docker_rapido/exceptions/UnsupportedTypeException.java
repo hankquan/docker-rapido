@@ -12,4 +12,8 @@ public class UnsupportedTypeException extends RuntimeException {
         super(message);
     }
 
+    public UnsupportedTypeException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }

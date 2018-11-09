@@ -33,7 +33,7 @@ public abstract class AbstractDockerHostDeployer implements DockerHostDeployer {
 	protected LinkedList<Container> current = new LinkedList<>();
 
 	protected String serviceName;
-	protected String deployType;
+	protected DeliveryType deliveryType;
 	protected String owner;
 	protected String imageName;
 	protected Node node;
@@ -41,10 +41,10 @@ public abstract class AbstractDockerHostDeployer implements DockerHostDeployer {
 	protected Repository repository;
 
 	@Override
-	public void deploy(Repository repository, String deployType, String owner, Node node, String serviceName, Service service,
+	public void deploy(Repository repository, DeliveryType deliveryType, String owner, Node node, String serviceName, Service service,
 			String imageName) {
 		this.repository = repository;
-		this.deployType = deployType;
+		this.deliveryType = deliveryType;
 		this.owner = owner;
 		this.node = node;
 		this.service = service;
@@ -84,8 +84,8 @@ public abstract class AbstractDockerHostDeployer implements DockerHostDeployer {
 		return getContainerNamePrefix() + "." + CommonUtil.getTimeStamp();
 	}
 
-	protected String getContainerNamePrefix() {
-		return serviceName + "." + deployType + "." + owner;
+	private String getContainerNamePrefix() {
+		return serviceName + "." + deliveryType.getValue() + "." + owner;
 	}
 
 	protected void removeCurrentContainer() {

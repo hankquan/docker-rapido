@@ -47,14 +47,15 @@ public class ServiceTaskHandler {
 		String imageNameWithRepo = combineImageNameWithRepo(imageName);
 		boolean isBuildImage = false;
 
-		if (isRollback) {
+		DeliveryType deliveryType = DeliveryType.getType(rapidoTemplate.getDelivery_type());
+        if (isRollback) {
 			imageName = combineImageNameWithRepoAndTag(imageName);
 			isBuildImage = false;
 		} else if (service.getBuild() != null) {
 			if (imageTag == null) {
-				if (DeliveryType.isDevelopmental(rapidoTemplate.getDelivery_type())) {
-					imageTag = rapidoTemplate.getOwner();
-					isBuildImage = true;
+				if (!deliveryType.isOfficial()) {
+                    imageTag = rapidoTemplate.getOwner();
+                    isBuildImage = true;
 				} else {
 					throw new IllegalImageTagsException("Image tag can not be empty when build is specific in official delivery");
 				}
@@ -67,7 +68,7 @@ public class ServiceTaskHandler {
 		String existedImageId = optDocker.isImageExited(combineImageNameWithRepoAndTag(imageName));
 		if (isBuildImage && existedImageId != null) {
 			imageName = combineImageNameWithRepoAndTag(imageName);
-			if (DeliveryType.isOfficial(rapidoTemplate.getDelivery_type())) {
+			if (deliveryType.isOfficial()) {
 				isBuildImage = false;
 			} else {
 				// remove if specific image has existed
@@ -82,7 +83,7 @@ public class ServiceTaskHandler {
 			logger.info("Building successfully, imageId is {}", imageId);
 			logger.info("Start to push image");
 			optDocker.pushImage(imageName, rapidoTemplate.getRepository().getUsername(), rapidoTemplate.getRepository().getPassword());
-			if (DeliveryType.isOfficial(rapidoTemplate.getDelivery_type())) {
+			if (deliveryType.isOfficial()) {
 				logger.info("Start to tag and push image with latest tag");
 				optDocker.tagImage(imageId, imageNameWithRepo, "latest");
 				optDocker.pushImage(imageNameWithRepo + ":latest", rapidoTemplate.getRepository().getUsername(),
@@ -107,7 +108,7 @@ public class ServiceTaskHandler {
 		logger.info("Deploy policy is {}", deployPolicy.getValue());
 		for (Node node : targetNodes) {
 			DockerHostDeployer deployer = DockerHostDeployerFactory.getInstance(deployPolicy);
-			deployer.deploy(rapidoTemplate.getRepository(), rapidoTemplate.getDelivery_type(), rapidoTemplate.getOwner(), node, serviceName,
+			deployer.deploy(rapidoTemplate.getRepository(), deliveryType, rapidoTemplate.getOwner(), node, serviceName,
 					service, imageName);
 		}
 		optDocker.tryToRemoveImage(existedImageId);

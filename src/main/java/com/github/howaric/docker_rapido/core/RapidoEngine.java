@@ -81,13 +81,9 @@ public class RapidoEngine {
 		}
 
 		/**
-		 * check delivery type
+		 * get delivery type
 		 */
-		String deliveryType = rapidoTemplate.getDelivery_type();
-		if (!DeliveryType.isDeliveryTypeLegal(deliveryType)) {
-			throw new TemplateResolveException(
-					"Unsupported delivery type: " + deliveryType + ", optionals:" + DeliveryType.supportedTypes());
-		}
+		DeliveryType deliveryType = DeliveryType.getType(rapidoTemplate.getDelivery_type());
 
 		/**
 		 * check restart policy
@@ -107,11 +103,11 @@ public class RapidoEngine {
 		 * use master as owner
 		 */
 		if (isDeclaredOfficial) {
-			if (!DeliveryType.isOfficial(deliveryType) || !"master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
+			if (!deliveryType.isOfficial() || !"master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
 				throw new TemplateResolveException("You must use official and master for an official deployment");
 			}
 		} else {
-			if (DeliveryType.isOfficial(deliveryType) || "master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
+            if (deliveryType.isOfficial() || "master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
 				throw new TemplateResolveException(
 						"You are not allowed to use official or master for an developmental deployment, please use --official to declare this deployment as an official one");
 			}

@@ -14,7 +14,7 @@ import com.github.howaric.docker_rapido.yaml_model.Node;
 import com.github.howaric.docker_rapido.yaml_model.RapidoTemplate;
 import com.github.howaric.docker_rapido.yaml_model.Service;
 
-public class ServiceTaskHandler {
+public class ServiceTaskHandler implements TaskHandler{
 
 	private static Logger logger = LoggerFactory.getLogger(ServiceTaskHandler.class);
 
@@ -36,6 +36,7 @@ public class ServiceTaskHandler {
 		this.isRollback = isRollback;
 	}
 
+	@Override
 	public void runTask() {
 		RapidoLogCentre.printEmptyLine();
 		RapidoLogCentre.printInCentreWithStar("Start service task: " + serviceName);

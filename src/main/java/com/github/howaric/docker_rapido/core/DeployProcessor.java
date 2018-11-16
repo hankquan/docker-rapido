@@ -13,7 +13,7 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.ContainerNetwork;
 import com.github.howaric.docker_rapido.exceptions.ContainerStartingFailedException;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
-import com.github.howaric.docker_rapido.utils.RapidoLogCentre;
+import com.github.howaric.docker_rapido.utils.LogUtil;
 
 public abstract class DeployProcessor extends AbstractNodeProcessor {
 
@@ -121,12 +121,12 @@ public abstract class DeployProcessor extends AbstractNodeProcessor {
     }
 
     protected void printContainerStartingLogs(String containerId) {
-        RapidoLogCentre.printEmptyLine();
-        RapidoLogCentre.printInCentreWithStar("LOGS OF CONTAINER " + containerId);
+        LogUtil.printEmptyLine();
+        LogUtil.printInCentreWithStar("LOGS OF CONTAINER " + containerId);
         System.out.println("");
         dockerProxy.printLogs(containerId);
         System.out.println("");
-        RapidoLogCentre.printInCentreWithStar("LOGS END");
-        RapidoLogCentre.printEmptyLine();
+        LogUtil.printInCentreWithStar("LOGS END");
+        LogUtil.printEmptyLine();
     }
 }

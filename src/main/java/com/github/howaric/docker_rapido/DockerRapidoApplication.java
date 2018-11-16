@@ -3,8 +3,11 @@ package com.github.howaric.docker_rapido;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -12,7 +15,7 @@ import com.beust.jcommander.JCommander;
 import com.github.howaric.docker_rapido.core.CliOptions;
 import com.github.howaric.docker_rapido.core.RapidoEngine;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
-import com.github.howaric.docker_rapido.utils.RapidoLogCentre;
+import com.github.howaric.docker_rapido.utils.LogUtil;
 import com.google.common.base.Strings;
 
 @SpringBootApplication
@@ -34,11 +37,7 @@ public class DockerRapidoApplication {
         setLogDir(cliOptions);
         printBanner();
         printCliOptions(cliOptions);
-        if (cliOptions.isWebMode()) {
-            SpringApplication.run(DockerRapidoApplication.class, args);
-        } else {
-            RapidoEngine.run(cliOptions);
-        }
+        RapidoEngine.run(cliOptions);
     }
 
     private static void printBanner() {
@@ -46,7 +45,7 @@ public class DockerRapidoApplication {
     }
 
     private static void printCliOptions(CliOptions cliOptions) {
-        List<String> lines = new ArrayList<>();
+        Map<String, String> result = new HashMap<>();
         Field[] fields = cliOptions.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
@@ -57,16 +56,17 @@ public class DockerRapidoApplication {
                 }
                 String value = object.toString();
                 if (!Strings.isNullOrEmpty(value)) {
-                    lines.add(field.getName() + ": " + value);
+                    result.put(field.getName(), value);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        RapidoLogCentre.printLinsInBox(lines, 20);
+        LogUtil.fillMapInBox(result);
     }
 
     private static void setLogDir(CliOptions cliOptions) {
         System.setProperty(logDir, cliOptions.getLogDir() + File.separator);
     }
+
 }

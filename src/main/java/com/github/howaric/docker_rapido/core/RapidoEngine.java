@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.howaric.docker_rapido.utils.LogUtil;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,6 @@ import com.github.howaric.docker_rapido.exceptions.IllegalImageTagsException;
 import com.github.howaric.docker_rapido.exceptions.IllegalPolicyException;
 import com.github.howaric.docker_rapido.exceptions.TemplateResolveException;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
-import com.github.howaric.docker_rapido.utils.RapidoLogCentre;
 import com.github.howaric.docker_rapido.utils.ValidatorUtil;
 import com.github.howaric.docker_rapido.utils.YamlUtil;
 import com.github.howaric.docker_rapido.yaml_model.Node;
@@ -37,6 +37,7 @@ public class RapidoEngine {
     private Boolean isRollback;
     private String nodeLabel;
     private Boolean isClean;
+    private Boolean isForceClean;
 
     private RapidoEngine(CliOptions cliOptions) {
         initialize(cliOptions);
@@ -58,6 +59,7 @@ public class RapidoEngine {
         isRollback = cliOptions.isRollback();
         nodeLabel = cliOptions.getNodeLabel();
         isClean = cliOptions.isClean();
+        isForceClean = cliOptions.isForceClean();
     }
 
     public static void run(CliOptions cliOptions) {
@@ -119,8 +121,8 @@ public class RapidoEngine {
         /**
          * analyze service dependence
          */
-        List<String> orderedServices = validateDependence();
-        if (isClean) {
+        List<String> orderedServices = validateDependency();
+        if (isClean || isForceClean) {
             Collections.reverse(orderedServices);
         }
         /**
@@ -137,13 +139,13 @@ public class RapidoEngine {
         for (int i = 0; i < orderedServices.size(); i++) {
             String serviceName = orderedServices.get(i);// deploy service name
             Service service = services.get(serviceName);// deploy service
-                                                        // details
+            // details
             List<Node> targetNodes = null;
             if (service.getDeploy() != null) {// target nodes
                 targetNodes = service.getDeploy().getPlacement().targetNodes(nodes, nodeLabel);
             }
 
-            if (isClean && service.getBuild() != null) {
+            if (isForceClean || (isClean && service.getBuild() != null)) {
                 taskHandlers.add(new CleanTaskHandler(rapidoTemplate, serviceName, targetNodes));
                 continue;
             }
@@ -163,7 +165,7 @@ public class RapidoEngine {
             taskHandler.runTask();
         }
 
-        RapidoLogCentre.successfulExit();
+        LogUtil.successfulExit();
         System.exit(0);
     }
 
@@ -200,7 +202,7 @@ public class RapidoEngine {
         return null;
     }
 
-    private List<String> validateDependence() {
+    private List<String> validateDependency() {
         List<String> services = new ArrayList<>();
         Map<String, List<String>> dependence = new HashMap<>();
         Map<String, Service> serviceMap = rapidoTemplate.getServices();
@@ -213,12 +215,12 @@ public class RapidoEngine {
         }
         logger.info("Raw services: {}", services);
         logger.info("Service dependencies: {}", dependence);
-        analyseDependence(services, dependence);
+        sortDependency(services, dependence);
         logger.info("Sorted services: {}", services);
         return services;
     }
 
-    private void analyseDependence(List<String> services, Map<String, List<String>> dependence) {
+    private void sortDependency(List<String> services, Map<String, List<String>> dependence) {
         int size = services.size();
         for (int i = 0; i < size - 1; i++) {
             for (int j = 0; j < size - 1 - i; j++) {

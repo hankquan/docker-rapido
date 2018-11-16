@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.github.howaric.docker_rapido.core.dto.ProcessorInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,21 +52,21 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
 
     protected abstract void perform();
 
-    protected void findCurrentContainers(boolean isContainRunning) {
-        List<Container> allContainers = dockerProxy.listContainers(isContainRunning);
+    protected void findCurrentContainers(boolean isAll) {
+        List<Container> allContainers = dockerProxy.listContainers(isAll);
         List<String> containerNames = new ArrayList<>();
         for (Container container : allContainers) {
             String[] names = container.getNames();
             for (String name : names) {
                 String realName = name.substring(1);
-                if (!realName.contains("/")
-                        && (realName.startsWith(getContainerNamePrefix()) || realName.equals(generateContainerName()))) {
+                if (!realName.contains("/") && (realName.startsWith(getContainerNamePrefix()) || realName
+                        .equals(generateContainerName()))) {
                     current.add(container);
                     containerNames.add(realName);
                 }
             }
         }
-        String statues = isContainRunning ? "All" : "Running";
+        String statues = isAll ? "All" : "Running";
         logger.info("Find current service containers(" + statues + "): " + containerNames);
     }
 

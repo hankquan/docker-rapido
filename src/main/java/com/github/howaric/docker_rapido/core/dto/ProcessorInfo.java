@@ -1,5 +1,6 @@
-package com.github.howaric.docker_rapido.core;
+package com.github.howaric.docker_rapido.core.dto;
 
+import com.github.howaric.docker_rapido.core.DeliveryType;
 import com.github.howaric.docker_rapido.yaml_model.Node;
 import com.github.howaric.docker_rapido.yaml_model.Repository;
 import com.github.howaric.docker_rapido.yaml_model.Service;
@@ -14,7 +15,7 @@ public class ProcessorInfo {
     private Service service;
     private String imageNameWithRepoAndTag;
 
-    public ProcessorInfo(Repository repository, DeliveryType deliveryType, String owner, Node node, String serviceName, Service service,
+    ProcessorInfo(Repository repository, DeliveryType deliveryType, String owner, Node node, String serviceName, Service service,
             String imageNameWithRepoAndTag) {
         super();
         this.repository = repository;
@@ -26,7 +27,7 @@ public class ProcessorInfo {
         this.imageNameWithRepoAndTag = imageNameWithRepoAndTag;
     }
 
-    public ProcessorInfo(DeliveryType deliveryType, String owner, Node node, String serviceName) {
+    ProcessorInfo(DeliveryType deliveryType, String owner, Node node, String serviceName) {
         super();
         this.deliveryType = deliveryType;
         this.owner = owner;

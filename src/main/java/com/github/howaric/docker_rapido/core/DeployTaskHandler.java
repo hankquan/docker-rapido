@@ -2,13 +2,15 @@ package com.github.howaric.docker_rapido.core;
 
 import java.util.List;
 
+import com.github.howaric.docker_rapido.core.dto.ProcessorInfo;
+import com.github.howaric.docker_rapido.core.dto.ProcessorInfoFactory;
+import com.github.howaric.docker_rapido.utils.LogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.howaric.docker_rapido.docker.DockerProxy;
 import com.github.howaric.docker_rapido.docker.DockerProxyFactory;
 import com.github.howaric.docker_rapido.exceptions.IllegalImageTagsException;
-import com.github.howaric.docker_rapido.utils.RapidoLogCentre;
 import com.github.howaric.docker_rapido.yaml_model.Deploy;
 import com.github.howaric.docker_rapido.yaml_model.Node;
 import com.github.howaric.docker_rapido.yaml_model.RapidoTemplate;
@@ -38,8 +40,8 @@ public class DeployTaskHandler implements TaskHandler {
 
     @Override
     public void runTask() {
-        RapidoLogCentre.printEmptyLine();
-        RapidoLogCentre.printInCentreWithStar("Start service task: " + serviceName);
+        LogUtil.printEmptyLine();
+        LogUtil.printInCentreWithStar("Start service task: " + serviceName);
         logger.info("Get service task: {}, to build image-tag: {}, rapido will deploy this service to nodes: {}", serviceName, imageTag,
                 targetNodes);
         // build image if need
@@ -96,7 +98,7 @@ public class DeployTaskHandler implements TaskHandler {
         Deploy deploy = service.getDeploy();
         if (deploy == null) {
             logger.info("No deployment description found, deploy skipped");
-            RapidoLogCentre.printInCentreWithStar("End service task");
+            LogUtil.printInCentreWithStar("End service task");
             return;
         }
 
@@ -108,12 +110,13 @@ public class DeployTaskHandler implements TaskHandler {
         DeployPolicy deployPolicy = DeployPolicy.getType(deploy_policy);
         logger.info("Deploy policy is {}", deployPolicy.getValue());
         for (Node node : targetNodes) {
-            ProcessorInfo processorInfo = new ProcessorInfo(rapidoTemplate.getRepository(), deliveryType, rapidoTemplate.getOwner(), node,
-                    deploy_policy, service, imageName);
+            ProcessorInfo processorInfo = ProcessorInfoFactory
+                    .getDeployProcessorInfo(rapidoTemplate.getRepository(), deliveryType, rapidoTemplate.getOwner(), node, serviceName,
+                            service, imageName);
             NodeProcessorFactory.getDeployProcessor(deployPolicy).process(processorInfo);
         }
         optDocker.tryToRemoveImage(existedImageId);
-        RapidoLogCentre.printInCentreWithStar("End service task");
+        LogUtil.printInCentreWithStar("End service task");
     }
 
     private String combineImageNameWithRepoAndTag(String imageName) {

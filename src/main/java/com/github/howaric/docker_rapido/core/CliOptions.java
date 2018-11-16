@@ -7,6 +7,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class CliOptions {
 
@@ -14,14 +15,14 @@ public class CliOptions {
     @JsonIgnore
     private boolean help;
 
-    @Parameter(names = { "--web-mode" }, description = "Start docker-rapido as a rest service")
-    private boolean webMode;
-
     @Parameter(names = { "--official" }, description = "Declare --official if this is an official deployment")
     private boolean isDeclareOfficial;
 
-    @Parameter(names = { "--clean", "-c" }, description = "Clean all the services")
+    @Parameter(names = { "--clean", "-c" }, description = "Clean the services which has build param")
     private boolean isClean;
+
+    @Parameter(names = { "--force-clean", "-fc" }, description = "Clean all the services")
+    private boolean isForceClean;
 
     @Parameter(names = {
             "--rollback" }, description = "Declare that it is a deployment for rollback, rapido will skip image building and use the specific image-tag to accomplish this deployment")
@@ -54,14 +55,6 @@ public class CliOptions {
 
     public void setHelp(boolean help) {
         this.help = help;
-    }
-
-    public boolean isWebMode() {
-        return webMode;
-    }
-
-    public void setWebMode(boolean webMode) {
-        this.webMode = webMode;
     }
 
     public boolean isRollback() {
@@ -120,14 +113,18 @@ public class CliOptions {
         this.logDir = logDir;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("CliOptions [help=").append(help).append(", webMode=").append(webMode).append(", isDeclareOfficial=")
-                .append(isDeclareOfficial).append(", isClean=").append(isClean).append(", isRollback=").append(isRollback)
-                .append(", nodeLabel=").append(nodeLabel).append(", imageTag=").append(imageTag).append(", templateFilePath=")
-                .append(templateFilePath).append(", logDir=").append(logDir).append("]");
-        return builder.toString();
+    public boolean isForceClean() {
+        return isForceClean;
     }
 
+    public void setForceClean(boolean forceClean) {
+        isForceClean = forceClean;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("help", help).append("isDeclareOfficial", isDeclareOfficial).append("isClean", isClean)
+                .append("isForceClean", isForceClean).append("isRollback", isRollback).append("nodeLabel", nodeLabel)
+                .append("imageTag", imageTag).append("templateFilePath", templateFilePath).append("logDir", logDir).toString();
+    }
 }

@@ -17,15 +17,25 @@ public class CleanTaskHandler implements TaskHandler {
     private String serviceName;
     private List<Node> targetNodes;
 
+    public CleanTaskHandler(RapidoTemplate rapidoTemplate, String serviceName, List<Node> targetNodes) {
+        super();
+        this.rapidoTemplate = rapidoTemplate;
+        this.serviceName = serviceName;
+        this.targetNodes = targetNodes;
+    }
+
     @Override
     public void runTask() {
         RapidoLogCentre.printEmptyLine();
         RapidoLogCentre.printInCentreWithStar("Start clean task: " + serviceName);
         logger.info("Get clean task: {}, rapido will clean this service from nodes: {}", serviceName, targetNodes);
-        
-        
-        
-        
+
+        for (Node node : targetNodes) {
+            String owner = rapidoTemplate.getOwner();
+            ProcessorInfo processorInfo = new ProcessorInfo(DeliveryType.getType(rapidoTemplate.getDelivery_type()), owner, node, owner);
+            NodeProcessorFactory.getCleanProcessor().process(processorInfo);
+        }
+
     }
 
 }

@@ -4,36 +4,38 @@ import java.util.List;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
+import com.github.howaric.docker_rapido.yaml_model.Service;
 
 public interface DockerProxy {
-	String buildImage(String localDockerfilePath, String... imageTag);
 
-	void pushImage(String imageNameWithRepoAndTag, String username, String password);
+    String buildImage(String localDockerfilePath, String... imageTag);
 
-	void pullImage(String imageNameWithTag, String username, String password);
+    void pushImage(String imageNameWithRepoAndTag, String username, String password);
 
-	void tagImage(String imageId, String imageNameWithRepo, String tag);
+    void pullImage(String imageNameWithTag, String username, String password);
 
-	void removeImage(String imageId);
+    void tagImage(String imageId, String imageNameWithRepo, String tag);
 
-	void tryToRemoveImage(String imageId);
+    void removeImage(String imageId);
 
-	String isImageExited(String imageNameWithTag);
+    void tryToRemoveImage(String imageId);
 
-	List<Container> listContainers(boolean isShowAll);
+    String isImageExited(String imageNameWithTag);
 
-	void stopContainer(String containerId, Integer timeout);
+    List<Container> listContainers(boolean isShowAll);
 
-	void startContainer(String containerId);
+    void stopContainer(String containerId, Integer timeout);
 
-	void restartContainer(String containerId);
+    void startContainer(String containerId);
 
-	String createContainer(String name, String imageNameWithTag, String restartPolicy, String networkMode, List<String> ports, List<String> envs,
-			List<String> links, List<String> volumes, List<String> extraHosts, List<String> commands);
+    void restartContainer(String containerId);
 
-	void removeContainer(String containerId);
+    String createContainer(String name, String imageNameWithTag, Service service);
 
-	InspectContainerResponse inspectContainer(String containerId);
+    void removeContainer(String containerId);
 
-	void printLogs(String containerId);
+    InspectContainerResponse inspectContainer(String containerId);
+
+    void printLogs(String containerId);
+
 }

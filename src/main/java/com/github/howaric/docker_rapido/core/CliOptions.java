@@ -20,6 +20,9 @@ public class CliOptions {
     @Parameter(names = { "--official" }, description = "Declare --official if this is an official deployment")
     private boolean isDeclareOfficial;
 
+    @Parameter(names = { "--clean", "-c" }, description = "Clean all the services")
+    private boolean isClean;
+
     @Parameter(names = {
             "--rollback" }, description = "Declare that it is a deployment for rollback, rapido will skip image building and use the specific image-tag to accomplish this deployment")
     private boolean isRollback;
@@ -77,6 +80,14 @@ public class CliOptions {
         this.isDeclareOfficial = isDeclareOfficial;
     }
 
+    public boolean isClean() {
+        return isClean;
+    }
+
+    public void setClean(boolean isClean) {
+        this.isClean = isClean;
+    }
+
     public String getTemplateFilePath() {
         return templateFilePath;
     }
@@ -113,9 +124,9 @@ public class CliOptions {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("CliOptions [help=").append(help).append(", webMode=").append(webMode).append(", isDeclareOfficial=")
-                .append(isDeclareOfficial).append(", isRollback=").append(isRollback).append(", nodeLabel=").append(nodeLabel)
-                .append(", imageTag=").append(imageTag).append(", templateFilePath=").append(templateFilePath).append(", logDir=")
-                .append(logDir).append("]");
+                .append(isDeclareOfficial).append(", isClean=").append(isClean).append(", isRollback=").append(isRollback)
+                .append(", nodeLabel=").append(nodeLabel).append(", imageTag=").append(imageTag).append(", templateFilePath=")
+                .append(templateFilePath).append(", logDir=").append(logDir).append("]");
         return builder.toString();
     }
 

@@ -25,17 +25,17 @@ public class DeployTaskHandler implements TaskHandler {
     private List<Node> targetNodes;
     private String imageTag;
     private Boolean isRollback;
+    private Boolean isTagLatest;
 
-    public static final String LATEST = ":latest";
+    public static final String LATEST = "latest";
 
-    public DeployTaskHandler(RapidoTemplate rapidoTemplate, String serviceName, List<Node> targetNodes, String imageTag,
-            Boolean isRollback) {
-        super();
+    public DeployTaskHandler(RapidoTemplate rapidoTemplate, String serviceName, List<Node> targetNodes, String imageTag, Boolean isRollback, Boolean isTagLatest) {
         this.rapidoTemplate = rapidoTemplate;
         this.serviceName = serviceName;
         this.targetNodes = targetNodes;
         this.imageTag = imageTag;
         this.isRollback = isRollback;
+        this.isTagLatest = isTagLatest;
     }
 
     @Override
@@ -70,25 +70,20 @@ public class DeployTaskHandler implements TaskHandler {
         DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
         String existedImageId = optDocker.isImageExited(combineImageNameWithRepoAndTag(imageName));
         if (isBuildImage && existedImageId != null) {
-            imageName = combineImageNameWithRepoAndTag(imageName);
-            if (deliveryType.isOfficial()) {
-                isBuildImage = false;
-            } else {
-                // remove if specific image has existed
-                logger.info("Find local image with same image-tag: {}, rapido will try to remove it", imageName);
-                optDocker.tryToRemoveImage(existedImageId);
-            }
+            logger.info("Find local image with same image-tag, rapido will try to remove it");
+            optDocker.tryToRemoveImage(existedImageId);
         }
 
         if (isBuildImage) {
+            imageName = combineImageNameWithRepoAndTag(imageName);
             logger.info("Start to build image: {}", imageName);
             String imageId = optDocker.buildImage(service.getBuild(), imageName);
             logger.info("Building successfully, imageId is {}", imageId);
             logger.info("Start to push image");
             optDocker.pushImage(imageName, rapidoTemplate.getRepository().getUsername(), rapidoTemplate.getRepository().getPassword());
-            if (deliveryType.isOfficial()) {
+            if (deliveryType.isOfficial() && isTagLatest) {
                 logger.info("Start to tag and push image with latest tag");
-                optDocker.tagImage(imageId, imageNameWithRepo, "latest");
+                optDocker.tagImage(imageId, imageNameWithRepo, LATEST);
                 optDocker.pushImage(imageNameWithRepo + ":latest", rapidoTemplate.getRepository().getUsername(),
                         rapidoTemplate.getRepository().getPassword());
             }
@@ -102,7 +97,7 @@ public class DeployTaskHandler implements TaskHandler {
             return;
         }
 
-        imageName = imageName.contains(":") ? imageName : imageName + LATEST;
+        imageName = imageName.contains(":") ? imageName : imageName + ":" + LATEST;
         logger.info("Rapido will use image {} to create containers of service {}", imageName, serviceName);
 
         // go to each node and do operation

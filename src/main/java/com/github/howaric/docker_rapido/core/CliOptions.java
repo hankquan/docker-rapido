@@ -1,44 +1,41 @@
 package com.github.howaric.docker_rapido.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class CliOptions {
 
-    @Parameter(names = { "--help", "-h" }, description = "Get command usage")
+    @Parameter(names = {"--help", "-h"}, description = "Get command usage")
     @JsonIgnore
     private boolean help;
 
-    @Parameter(names = { "--official" }, description = "Declare --official if this is an official deployment")
+    @Parameter(names = {"--official"}, description = "Declare --official if this is an official deployment")
     private boolean isDeclareOfficial;
 
-    @Parameter(names = { "--clean", "-c" }, description = "Clean the services which has build param")
+    @Parameter(names = {"--clean", "-c"}, description = "Clean the services which has build param")
     private boolean isClean;
 
-    @Parameter(names = { "--force-clean", "-fc" }, description = "Clean all the services")
+    @Parameter(names = {"--force-clean", "-fc"}, description = "Clean all the services")
     private boolean isForceClean;
 
     @Parameter(names = {
-            "--rollback" }, description = "Declare that it is a deployment for rollback, rapido will skip image building and use the specific image-tag to accomplish this deployment")
+            "--rollback"}, description = "Declare that it is a deployment for rollback, rapido will skip image building and use the specific image-tag to accomplish this deployment")
     private boolean isRollback;
 
-    @Parameter(names = { "--node-label", "-nl" }, description = "Deployment will constraint on the servers with this label")
+    @Parameter(names = {"--node-label", "-nl"}, description = "Deployment will constraint on the servers with this label")
     private String nodeLabel;
 
-    @Parameter(names = { "--image-tag",
-            "-it" }, description = "Image tags: 0.0.1-snapshot, specify service name if there are more than one as app1:0.0.1,app2:0.0.3", splitter = CommaParameterSplitter.class)
-    private List<String> imageTag = new ArrayList<>();
+    @Parameter(names = {"--tag-latest", "-tl"}, description = "Add latest tag when build and push image")
+    private boolean isTagLatest;
 
-    @Parameter(names = { "--template", "-t" }, description = "Required: Full local path of rapido template file")
+    @Parameter(names = {"--tag", "-it"}, description = "Tag of image, for example: 1.12.5")
+    private String tag;
+
+    @Parameter(names = {"--template", "-t"}, description = "Required: Full local path of rapido template file")
     private String templateFilePath;
 
-    @Parameter(names = { "-logdir" }, description = "Log folder where logs will be created, current folder as default")
+    @Parameter(names = {"-logdir"}, description = "Log folder where logs will be created, current folder as default")
     private String logDir = ".";
 
     public boolean needShowUsage() {
@@ -97,12 +94,20 @@ public class CliOptions {
         this.nodeLabel = nodeLabel;
     }
 
-    public List<String> getImageTag() {
-        return imageTag;
+    public boolean isTagLatest() {
+        return isTagLatest;
     }
 
-    public void setImageTag(List<String> imageTag) {
-        this.imageTag = imageTag;
+    public void setTagLatest(boolean tagLatest) {
+        isTagLatest = tagLatest;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public String getLogDir() {
@@ -123,8 +128,18 @@ public class CliOptions {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("help", help).append("isDeclareOfficial", isDeclareOfficial).append("isClean", isClean)
-                .append("isForceClean", isForceClean).append("isRollback", isRollback).append("nodeLabel", nodeLabel)
-                .append("imageTag", imageTag).append("templateFilePath", templateFilePath).append("logDir", logDir).toString();
+        final StringBuilder sb = new StringBuilder("CliOptions{");
+        sb.append("help=").append(help);
+        sb.append(", isDeclareOfficial=").append(isDeclareOfficial);
+        sb.append(", isClean=").append(isClean);
+        sb.append(", isForceClean=").append(isForceClean);
+        sb.append(", isRollback=").append(isRollback);
+        sb.append(", nodeLabel='").append(nodeLabel).append('\'');
+        sb.append(", isTagLatest=").append(isTagLatest);
+        sb.append(", tag='").append(tag).append('\'');
+        sb.append(", templateFilePath='").append(templateFilePath).append('\'');
+        sb.append(", logDir='").append(logDir).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

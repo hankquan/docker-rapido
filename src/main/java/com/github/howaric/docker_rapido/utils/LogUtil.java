@@ -45,6 +45,7 @@ public class LogUtil {
 
     public static String fillMapInBox(Map<String, String> fillMap) {
         StringBuilder result = new StringBuilder();
+        result.append(NEXT_ROW);
         int maxLeft = 0;
         int maxRight = 0;
         for (Map.Entry<String, String> each : fillMap.entrySet()) {
@@ -57,7 +58,7 @@ public class LogUtil {
                 maxRight = rightWidth;
             }
         }
-        int boxWidth = maxLeft + maxRight + 8;
+        int boxWidth = maxLeft + maxRight + 10;
         for (int i = 0; i < boxWidth; i++) {
             result.append(STAR);
         }

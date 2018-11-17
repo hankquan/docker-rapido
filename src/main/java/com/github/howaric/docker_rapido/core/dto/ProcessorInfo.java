@@ -16,7 +16,7 @@ public class ProcessorInfo {
     private String imageNameWithRepoAndTag;
 
     ProcessorInfo(Repository repository, DeliveryType deliveryType, String owner, Node node, String serviceName, Service service,
-            String imageNameWithRepoAndTag) {
+                  String imageNameWithRepoAndTag) {
         super();
         this.repository = repository;
         this.deliveryType = deliveryType;
@@ -27,11 +27,12 @@ public class ProcessorInfo {
         this.imageNameWithRepoAndTag = imageNameWithRepoAndTag;
     }
 
-    ProcessorInfo(DeliveryType deliveryType, String owner, Node node, String serviceName) {
+    ProcessorInfo(DeliveryType deliveryType, String owner, Node node, Service service, String serviceName) {
         super();
         this.deliveryType = deliveryType;
         this.owner = owner;
         this.node = node;
+        this.service = service;
         this.serviceName = serviceName;
     }
 

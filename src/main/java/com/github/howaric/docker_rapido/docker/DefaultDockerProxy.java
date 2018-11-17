@@ -57,6 +57,7 @@ public class DefaultDockerProxy implements DockerProxy {
 
     private String formatDockerHostInfo(Info info) {
         StringBuilder result = new StringBuilder();
+
         result.append("\n*********************************");
         result.append("\nHostname: " + info.getName());
         result.append("\nDocker version: " + info.getServerVersion());
@@ -126,6 +127,9 @@ public class DefaultDockerProxy implements DockerProxy {
 
     @Override
     public String isImageExited(String imageNameWithTag) {
+        if (Strings.isNullOrEmpty(imageNameWithTag)) {
+            return null;
+        }
         List<Image> imageList = dockerClient.listImagesCmd().exec();
         for (Image image : imageList) {
             String[] repoTags = image.getRepoTags();
@@ -155,7 +159,7 @@ public class DefaultDockerProxy implements DockerProxy {
             }
             stopContainerCmd.exec();
         } catch (NotModifiedException e) {
-            logger.error("No such Container " + containerId);
+            logger.error("No such running Container " + containerId);
         }
     }
 

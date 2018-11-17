@@ -52,8 +52,8 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
 
     protected abstract void perform();
 
-    protected void findCurrentContainers(boolean isAll) {
-        List<Container> allContainers = dockerProxy.listContainers(isAll);
+    protected void findCurrentContainers(boolean isShowAll) {
+        List<Container> allContainers = dockerProxy.listContainers(isShowAll);
         List<String> containerNames = new ArrayList<>();
         for (Container container : allContainers) {
             String[] names = container.getNames();
@@ -66,7 +66,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
                 }
             }
         }
-        String statues = isAll ? "All" : "Running";
+        String statues = isShowAll ? "All" : "Running";
         logger.info("Find current service containers(" + statues + "): " + containerNames);
     }
 
@@ -86,7 +86,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
         try {
             dockerProxy.stopContainer(container.getId(), service.getDeploy().getStop_timeout());
             dockerProxy.removeContainer(container.getId());
-            logger.info("Stop and remove old container: " + container.getNames()[0].substring(1));
+            logger.info("Stop and remove container: " + container.getNames()[0].substring(1));
         } catch (Exception e) {
             e.printStackTrace();
         }

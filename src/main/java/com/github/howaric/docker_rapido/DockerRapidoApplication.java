@@ -2,14 +2,8 @@ package com.github.howaric.docker_rapido;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.beust.jcommander.JCommander;
 import com.github.howaric.docker_rapido.core.CliOptions;
@@ -18,7 +12,6 @@ import com.github.howaric.docker_rapido.utils.CommonUtil;
 import com.github.howaric.docker_rapido.utils.LogUtil;
 import com.google.common.base.Strings;
 
-@SpringBootApplication
 public class DockerRapidoApplication {
 
     private static final String logDir = "log.dir";
@@ -62,7 +55,7 @@ public class DockerRapidoApplication {
                 e.printStackTrace();
             }
         }
-        LogUtil.fillMapInBox(result);
+        System.out.println(LogUtil.fillMapInBox(result));
     }
 
     private static void setLogDir(CliOptions cliOptions) {

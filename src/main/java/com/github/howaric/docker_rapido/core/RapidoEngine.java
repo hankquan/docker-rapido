@@ -1,43 +1,37 @@
 package com.github.howaric.docker_rapido.core;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.github.howaric.docker_rapido.utils.LogUtil;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.beust.jcommander.Strings;
 import com.github.howaric.docker_rapido.docker.RestartPolicy;
-import com.github.howaric.docker_rapido.exceptions.IllegalImageTagsException;
 import com.github.howaric.docker_rapido.exceptions.IllegalPolicyException;
 import com.github.howaric.docker_rapido.exceptions.TemplateResolveException;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
+import com.github.howaric.docker_rapido.utils.LogUtil;
 import com.github.howaric.docker_rapido.utils.ValidatorUtil;
 import com.github.howaric.docker_rapido.utils.YamlUtil;
 import com.github.howaric.docker_rapido.yaml_model.Node;
 import com.github.howaric.docker_rapido.yaml_model.RapidoTemplate;
 import com.github.howaric.docker_rapido.yaml_model.Service;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class RapidoEngine {
 
     private static Logger logger = LoggerFactory.getLogger(RapidoEngine.class);
 
     private File templateFile;
-    private List<String> imageTags;
+    private String imageTag;
     private Boolean isDeclaredOfficial;
     private RapidoTemplate rapidoTemplate;
     private Boolean isRollback;
     private String nodeLabel;
     private Boolean isClean;
     private Boolean isForceClean;
+    private Boolean isTagLatest;
 
     private RapidoEngine(CliOptions cliOptions) {
         initialize(cliOptions);
@@ -54,12 +48,13 @@ public class RapidoEngine {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        imageTags = cliOptions.getImageTag();
+        imageTag = cliOptions.getTag();
         isDeclaredOfficial = cliOptions.isDeclareOfficial();
         isRollback = cliOptions.isRollback();
         nodeLabel = cliOptions.getNodeLabel();
         isClean = cliOptions.isClean();
         isForceClean = cliOptions.isForceClean();
+        isTagLatest = cliOptions.isTagLatest();
     }
 
     public static void run(CliOptions cliOptions) {
@@ -109,7 +104,10 @@ public class RapidoEngine {
          */
         if (isDeclaredOfficial) {
             if (!deliveryType.isOfficial() || !"master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
-                throw new TemplateResolveException("You must use official and master for an official deployment");
+                throw new TemplateResolveException("You must use official and master for official deployment");
+            }
+            if (Strings.isStringEmpty(imageTag)) {
+                throw new TemplateResolveException("You must specify --tag/-t for official deployment");
             }
         } else {
             if (deliveryType.isOfficial() || "master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
@@ -146,19 +144,15 @@ public class RapidoEngine {
             }
 
             if (isForceClean || (isClean && service.getBuild() != null)) {
-                taskHandlers.add(new CleanTaskHandler(rapidoTemplate, serviceName, targetNodes));
+                taskHandlers.add(new CleanTaskHandler(rapidoTemplate, serviceName, service, targetNodes));
                 continue;
             }
 
-            String imageTag = null;
-            if (service.getBuild() != null) {// need build image
-                imageTag = getImageTag(serviceName);
-            }
             if ((targetNodes == null || targetNodes.isEmpty()) && imageTag == null) {
                 throw new TemplateResolveException("TargetNodes and imageTags are all empty at the same time, will do nothing");
             }
             logger.info("{} will be created or updated on following nodes:{}", serviceName, targetNodes);
-            taskHandlers.add(new DeployTaskHandler(rapidoTemplate, serviceName, targetNodes, imageTag, isRollback));
+            taskHandlers.add(new DeployTaskHandler(rapidoTemplate, serviceName, targetNodes, imageTag, isRollback, isTagLatest));
         }
 
         for (TaskHandler taskHandler : taskHandlers) {
@@ -182,24 +176,6 @@ public class RapidoEngine {
                 service.setBuild(newBuild);
             }
         }
-    }
-
-    private String getImageTag(String serviceName) {
-        for (String tags : imageTags) {
-            if (tags.contains(":")) {
-                String[] split = tags.split(":");
-                String _serviceName = split[0];
-                String tag = split[1];
-                if (serviceName.equals(_serviceName)) {
-                    return tag;
-                }
-            } else if (imageTags.size() > 1) {
-                throw new IllegalImageTagsException("Image tags should be serviceName:tag when there are more than one");
-            } else {
-                return tags;
-            }
-        }
-        return null;
     }
 
     private List<String> validateDependency() {

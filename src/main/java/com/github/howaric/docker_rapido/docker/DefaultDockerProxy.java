@@ -52,7 +52,7 @@ public class DefaultDockerProxy implements DockerProxy {
     DefaultDockerProxy(String endPoint) {
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerHost(endPoint).build();
         dockerClient = DockerClientBuilder.getInstance(config).build();
-        logger.info(formatDockerHostInfo(dockerClient.infoCmd().exec()));
+        //logger.info(formatDockerHostInfo(dockerClient.infoCmd().exec()));
     }
 
     private String formatDockerHostInfo(Info info) {

@@ -41,9 +41,8 @@ public class DeployTaskHandler implements TaskHandler {
     @Override
     public void runTask() {
         LogUtil.printEmptyLine();
-        LogUtil.printInCentreWithStar("Start service task: " + serviceName);
-        logger.info("Get service task: {}, to build image-tag: {}, rapido will deploy this service to nodes: {}", serviceName, imageTag,
-                targetNodes);
+        LogUtil.printInCentreWithStar("Start deploy task: " + serviceName);
+        logger.info("Get deploy task: {},  rapido will deploy this service to nodes: {}", serviceName, targetNodes);
         // build image if need
         Service service = rapidoTemplate.getServices().get(serviceName);
         String imageName = service.getImage();

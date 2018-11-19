@@ -148,6 +148,10 @@ public class RapidoEngine {
                 continue;
             }
 
+            if (isClean) {
+                continue;
+            }
+
             if ((targetNodes == null || targetNodes.isEmpty()) && imageTag == null) {
                 throw new TemplateResolveException("TargetNodes and imageTags are all empty at the same time, will do nothing");
             }

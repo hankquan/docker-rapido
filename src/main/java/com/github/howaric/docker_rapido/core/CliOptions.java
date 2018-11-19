@@ -6,36 +6,36 @@ import com.google.common.base.Strings;
 
 public class CliOptions {
 
-    @Parameter(names = {"--help", "-h"}, description = "Get command usage")
+    @Parameter(names = { "--help", "-h" }, description = "Get command usage")
     @JsonIgnore
     private boolean help;
 
-    @Parameter(names = {"--official"}, description = "Declare --official if this is an official deployment")
+    @Parameter(names = { "--official" }, description = "Declare --official if this is an official deployment")
     private boolean isDeclareOfficial;
 
-    @Parameter(names = {"--clean", "-c"}, description = "Clean the services which has build param")
+    @Parameter(names = { "--clean", "-c" }, description = "Clean the services which has build param")
     private boolean isClean;
 
-    @Parameter(names = {"--force-clean", "-fc"}, description = "Clean all the services")
+    @Parameter(names = { "--force-clean", "-fc" }, description = "Clean all the services")
     private boolean isForceClean;
 
     @Parameter(names = {
-            "--rollback"}, description = "Declare that it is a deployment for rollback, rapido will skip image building and use the specific image-tag to accomplish this deployment")
+            "--rollback" }, description = "Declare that it is a deployment for rollback, rapido will skip image building and use the specific image-tag to accomplish this deployment")
     private boolean isRollback;
 
-    @Parameter(names = {"--node-label", "-nl"}, description = "Deployment will constraint on the servers with this label")
+    @Parameter(names = { "--node-label", "-nl" }, description = "Deployment will constraint on the servers with this label")
     private String nodeLabel;
 
-    @Parameter(names = {"--tag-latest", "-tl"}, description = "Add latest tag when build and push image")
+    @Parameter(names = { "--tag-latest", "-tl" }, description = "Add latest tag when build and push image")
     private boolean isTagLatest;
 
-    @Parameter(names = {"--tag", "-it"}, description = "Tag of image, for example: 1.12.5")
+    @Parameter(names = { "--tag", "--image-tag", "-it" }, description = "Tag of image, for example: 1.12.5")
     private String tag;
 
-    @Parameter(names = {"--template", "-t"}, description = "Required: Full local path of rapido template file")
+    @Parameter(names = { "--template", "-t" }, description = "Required: Full local path of rapido template file")
     private String templateFilePath;
 
-    @Parameter(names = {"-logdir"}, description = "Log folder where logs will be created, current folder as default")
+    @Parameter(names = { "-logdir" }, description = "Log folder where logs will be created, current folder as default")
     private String logDir = ".";
 
     public boolean needShowUsage() {

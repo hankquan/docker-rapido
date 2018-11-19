@@ -110,7 +110,6 @@ public class DeployTaskHandler implements TaskHandler {
             NodeProcessorFactory.getDeployProcessor(deployPolicy).process(processorInfo);
         }
         optDocker.tryToRemoveImage(existedImageId);
-        LogUtil.printInCentreWithStar("End service task");
     }
 
     private String combineImageNameWithRepoAndTag(String imageName) {

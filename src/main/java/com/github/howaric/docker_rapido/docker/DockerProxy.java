@@ -20,7 +20,7 @@ public interface DockerProxy {
 
     void tryToRemoveImage(String imageId);
 
-    String isImageExited(String imageNameWithTag);
+    String isImageExsited(String imageNameWithTag);
 
     List<Container> listContainers(boolean isShowAll);
 

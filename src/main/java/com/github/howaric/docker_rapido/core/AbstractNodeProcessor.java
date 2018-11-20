@@ -45,7 +45,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
         String dockerEndPoint = node.dockerEndPoint();
         dockerProxy = DockerProxyFactory.getInstance(dockerEndPoint);
         findCurrentContainers(true);
-        String exitedImageId = dockerProxy.isImageExited(imageName);
+        String exitedImageId = dockerProxy.isImageExsited(imageName);
         perform();
         dockerProxy.tryToRemoveImage(exitedImageId);
     }

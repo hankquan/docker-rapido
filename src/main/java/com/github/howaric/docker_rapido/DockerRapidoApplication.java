@@ -27,7 +27,7 @@ public class DockerRapidoApplication {
             jcommander.usage();
             return;
         }
-        setLogDir(cliOptions);
+        //setLogDir(cliOptions);
         printBanner();
         printCliOptions(cliOptions);
         RapidoEngine.run(cliOptions);

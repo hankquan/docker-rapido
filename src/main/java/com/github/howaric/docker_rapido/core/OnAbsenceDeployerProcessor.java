@@ -18,7 +18,7 @@ public class OnAbsenceDeployerProcessor extends DeployProcessor {
             logger.info("Service {} has already existed, deployment skipped", serviceName);
             return;
         }
-        String imageExited = dockerProxy.isImageExited(imageName);
+        String imageExited = dockerProxy.isImageExsited(imageName);
         if (Strings.isNullOrEmpty(imageExited)) {
             dockerProxy.pullImage(imageName, repository.getUsername(), repository.getPassword());
         }

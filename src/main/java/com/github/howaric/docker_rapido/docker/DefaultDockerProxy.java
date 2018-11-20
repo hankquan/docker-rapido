@@ -1,11 +1,13 @@
 package com.github.howaric.docker_rapido.docker;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +71,8 @@ public class DefaultDockerProxy implements DockerProxy {
         return result.toString();
     }
 
+
+
     @Override
     public String buildImage(String localDockerfilePath, String... imageTag) {
         File file = new File(localDockerfilePath);
@@ -126,7 +130,7 @@ public class DefaultDockerProxy implements DockerProxy {
     }
 
     @Override
-    public String isImageExited(String imageNameWithTag) {
+    public String isImageExsited(String imageNameWithTag) {
         if (Strings.isNullOrEmpty(imageNameWithTag)) {
             return null;
         }

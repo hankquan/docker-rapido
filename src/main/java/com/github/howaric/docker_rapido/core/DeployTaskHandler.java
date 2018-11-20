@@ -1,10 +1,15 @@
 package com.github.howaric.docker_rapido.core;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import com.github.howaric.docker_rapido.core.dto.ProcessorInfo;
 import com.github.howaric.docker_rapido.core.dto.ProcessorInfoFactory;
+import com.github.howaric.docker_rapido.utils.CommonUtil;
 import com.github.howaric.docker_rapido.utils.LogUtil;
+import com.google.common.base.Strings;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +34,8 @@ public class DeployTaskHandler implements TaskHandler {
 
     public static final String LATEST = "latest";
 
-    public DeployTaskHandler(RapidoTemplate rapidoTemplate, String serviceName, List<Node> targetNodes, String imageTag, Boolean isRollback, Boolean isTagLatest) {
+    public DeployTaskHandler(RapidoTemplate rapidoTemplate, String serviceName, List<Node> targetNodes, String imageTag, Boolean isRollback,
+            Boolean isTagLatest) {
         this.rapidoTemplate = rapidoTemplate;
         this.serviceName = serviceName;
         this.targetNodes = targetNodes;
@@ -67,7 +73,7 @@ public class DeployTaskHandler implements TaskHandler {
         }
 
         DockerProxy optDocker = DockerProxyFactory.getInstance(rapidoTemplate.getRemote_docker());
-        String existedImageId = optDocker.isImageExited(combineImageNameWithRepoAndTag(imageName));
+        String existedImageId = optDocker.isImageExsited(combineImageNameWithRepoAndTag(imageName));
         if (isBuildImage && existedImageId != null) {
             logger.info("Find local image with same image-tag, rapido will try to remove it");
             optDocker.tryToRemoveImage(existedImageId);
@@ -76,6 +82,12 @@ public class DeployTaskHandler implements TaskHandler {
         if (isBuildImage) {
             imageName = combineImageNameWithRepoAndTag(imageName);
             logger.info("Start to build image: {}", imageName);
+            File dockerfile = CommonUtil.readTemplateFile(service.getBuild() + File.separator + "Dockerfile");
+            String baseImg = getBaseImg(dockerfile);
+            if (!Strings.isNullOrEmpty(baseImg) && optDocker.isImageExsited(baseImg) == null) {
+                logger.info("Start to pull base image: {}", baseImg);
+                optDocker.pullImage(baseImg, rapidoTemplate.getRepository().getUsername(), rapidoTemplate.getRepository().getPassword());
+            }
             String imageId = optDocker.buildImage(service.getBuild(), imageName);
             logger.info("Building successfully, imageId is {}", imageId);
             logger.info("Start to push image");
@@ -118,5 +130,17 @@ public class DeployTaskHandler implements TaskHandler {
 
     private String combineImageNameWithRepo(String imageName) {
         return rapidoTemplate.getRepository().repo() + "/" + imageName;
+    }
+
+    private String getBaseImg(File dockerfile) {
+        String baseImg = "";
+        try {
+            List<String> lines = FileUtils.readLines(dockerfile, "utf-8");
+            String firstLine = lines.get(0);
+            return firstLine.substring(firstLine.indexOf("FROM") + 4).trim();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return baseImg;
     }
 }

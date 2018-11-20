@@ -28,8 +28,7 @@ public abstract class DeployProcessor extends AbstractNodeProcessor {
         boolean isReady = false;
         for (int i = 0; i < 20; i++) {
             try {
-                @SuppressWarnings("rawtypes")
-                ResponseEntity<Map> result = restTemplate.getForEntity(url, Map.class);
+                @SuppressWarnings("rawtypes") ResponseEntity<Map> result = restTemplate.getForEntity(url, Map.class);
                 if (result.getStatusCode() == HttpStatus.OK) {
                     logger.info("Query result: {}", result.getBody());
                     String status = (String) result.getBody().get("status");
@@ -73,13 +72,12 @@ public abstract class DeployProcessor extends AbstractNodeProcessor {
         logger.info("Check url: {}", url);
         RestTemplate restTemplate = new RestTemplate();
         boolean isReady = false;
-        outer: for (int i = 0; i < 20; i++) {
+        outer:
+        for (int i = 0; i < 20; i++) {
             try {
-                @SuppressWarnings("rawtypes")
-                ResponseEntity<List> result = restTemplate.getForEntity(url, List.class);
+                @SuppressWarnings("rawtypes") ResponseEntity<List> result = restTemplate.getForEntity(url, List.class);
                 if (result.getStatusCode() == HttpStatus.OK) {
-                    @SuppressWarnings("unchecked")
-                    List<Map<String, String>> checkList = result.getBody();
+                    @SuppressWarnings("unchecked") List<Map<String, String>> checkList = result.getBody();
                     for (Map<String, String> map : checkList) {
                         String output = map.get("Output");
                         if (output.contains(clientIp) && output.contains("UP")) {
@@ -103,14 +101,18 @@ public abstract class DeployProcessor extends AbstractNodeProcessor {
         }
     }
 
+    private static final int oneMinute = 60 * 1000;
+
     protected void checkContainerStatus(String containerId) {
-        CommonUtil.sleep(20 * 1000);
+        logger.info("Check container status after one minute");
+        CommonUtil.sleep(oneMinute);
         String status = dockerProxy.inspectContainer(containerId).getState().getStatus();
         if (!isContainerUp(status)) {
             printContainerStartingLogs(containerId);
             throw new ContainerStartingFailedException(
                     "Container of service " + serviceName + " on node " + node.getIp() + " is down: " + containerId);
         }
+        logger.info("Check passed");
     }
 
     protected boolean isContainerUp(String status) {

@@ -1,5 +1,6 @@
 package com.github.howaric.docker_rapido.core;
 
+import com.github.howaric.docker_rapido.yaml_model.Healthcheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +20,15 @@ public class RollingUpdateDeployerProcessor extends DeployProcessor {
             dockerProxy.startContainer(containerId);
 
             if (!Strings.isNullOrEmpty(service.getBuild())) {
-                if (isContainerRegisteredSuccessfullyInConsul(containerId)) {
+                if (!healthcheck.isDisable() && isContainerRegisteredSuccessfullyInConsul(containerId)) {
                     removeCurrentContainer();
+                } else {
+                    checkContainerStatus(containerId);
                 }
             } else {
+                checkContainerStatus(containerId);
                 removeCurrentContainer();
             }
-
         }
         if (!Strings.isNullOrEmpty(service.getPublish_port())) {
             logger.info("Start to check service {}", serviceName);

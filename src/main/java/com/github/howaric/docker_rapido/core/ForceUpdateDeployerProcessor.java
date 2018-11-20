@@ -24,10 +24,10 @@ public class ForceUpdateDeployerProcessor extends DeployProcessor {
             String containerId = dockerProxy.createContainer(generateContainerName(), imageName, service);
             dockerProxy.startContainer(containerId);
 
-            if (!Strings.isNullOrEmpty(service.getBuild())) {
+            if (!Strings.isNullOrEmpty(service.getBuild()) && !healthcheck.isDisable()) {
                 isContainerRegisteredSuccessfullyInConsul(containerId);
             }
-
+            checkContainerStatus(containerId);
         }
         if (!Strings.isNullOrEmpty(service.getPublish_port())) {
             logger.info("Start to check service {}", serviceName);

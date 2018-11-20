@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.howaric.docker_rapido.core.dto.ProcessorInfo;
+import com.github.howaric.docker_rapido.yaml_model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +13,6 @@ import com.github.dockerjava.api.model.Container;
 import com.github.howaric.docker_rapido.docker.DockerProxy;
 import com.github.howaric.docker_rapido.docker.DockerProxyFactory;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
-import com.github.howaric.docker_rapido.yaml_model.Node;
-import com.github.howaric.docker_rapido.yaml_model.Repository;
-import com.github.howaric.docker_rapido.yaml_model.Service;
 import com.google.common.base.Strings;
 
 public abstract class AbstractNodeProcessor implements NodeProcessor {
@@ -32,6 +30,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
     protected Node node;
     protected Service service;
     protected Repository repository;
+    protected Healthcheck healthcheck;
 
     @Override
     public void process(ProcessorInfo processorInfo) {
@@ -42,6 +41,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
         this.service = processorInfo.getService();
         this.serviceName = processorInfo.getServiceName();
         this.imageName = processorInfo.getImageNameWithRepoAndTag();
+        initHealthCheck();
         String dockerEndPoint = node.dockerEndPoint();
         dockerProxy = DockerProxyFactory.getInstance(dockerEndPoint);
         findCurrentContainers(true);
@@ -51,6 +51,13 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
     }
 
     protected abstract void perform();
+
+    protected void initHealthCheck() {
+        healthcheck = service.getDeploy().getHealthcheck();
+        if (healthcheck == null) {
+            healthcheck = new Healthcheck();
+        }
+    }
 
     protected void findCurrentContainers(boolean isShowAll) {
         List<Container> allContainers = dockerProxy.listContainers(isShowAll);

@@ -70,7 +70,7 @@ public class RapidoEngine {
             throw new TemplateResolveException("Failed to parse template to yaml bean");
         }
 
-        logger.info("Rapido template:\n\n{}\n", CommonUtil.prettyJson(rapidoTemplate));
+        //logger.info("Rapido template:\n\n{}\n", CommonUtil.prettyJson(rapidoTemplate));
 
         /**
          * basic check through hibernate validation

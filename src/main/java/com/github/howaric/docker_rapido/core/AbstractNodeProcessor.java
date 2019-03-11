@@ -30,7 +30,7 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
     protected Node node;
     protected Service service;
     protected Repository repository;
-    protected Healthcheck healthcheck;
+    protected HealthCheck healthcheck;
 
     @Override
     public void process(ProcessorInfo processorInfo) {
@@ -41,7 +41,6 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
         this.service = processorInfo.getService();
         this.serviceName = processorInfo.getServiceName();
         this.imageName = processorInfo.getImageNameWithRepoAndTag();
-        initHealthCheck();
         String dockerEndPoint = node.dockerEndPoint();
         dockerProxy = DockerProxyFactory.getInstance(dockerEndPoint);
         findCurrentContainers(true);
@@ -51,13 +50,6 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
     }
 
     protected abstract void perform();
-
-    protected void initHealthCheck() {
-        healthcheck = service.getDeploy().getHealthcheck();
-        if (healthcheck == null) {
-            healthcheck = new Healthcheck();
-        }
-    }
 
     protected void findCurrentContainers(boolean isShowAll) {
         List<Container> allContainers = dockerProxy.listContainers(isShowAll);

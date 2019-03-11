@@ -3,6 +3,10 @@ package com.github.howaric.docker_rapido.core;
 import com.beust.jcommander.Parameter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CliOptions {
 
@@ -19,13 +23,6 @@ public class CliOptions {
     @Parameter(names = { "--force-clean", "-fc" }, description = "Clean all the services")
     private boolean isForceClean;
 
-    @Parameter(names = {
-            "--rollback" }, description = "Declare that it is a deployment for rollback, rapido will skip image building and use the specific image-tag to accomplish this deployment")
-    private boolean isRollback;
-
-    @Parameter(names = { "--node-label", "-nl" }, description = "Deployment will constraint on the servers with this label")
-    private String nodeLabel;
-
     @Parameter(names = { "--tag-latest", "-tl" }, description = "Add latest tag when build and push image")
     private boolean isTagLatest;
 
@@ -34,6 +31,9 @@ public class CliOptions {
 
     @Parameter(names = { "--template", "-t" }, description = "Required: Full local path of rapido template file")
     private String templateFilePath;
+
+    @Parameter(names = { "--parameter", "-p" }, description = "Parameters to format @key@ in template file")
+    private List<String> parameters = new ArrayList<>();
 
     @Parameter(names = { "-logdir" }, description = "Log folder where logs will be created, current folder as default")
     private String logDir = ".";
@@ -52,14 +52,6 @@ public class CliOptions {
 
     public void setHelp(boolean help) {
         this.help = help;
-    }
-
-    public boolean isRollback() {
-        return isRollback;
-    }
-
-    public void setRollback(boolean isRollback) {
-        this.isRollback = isRollback;
     }
 
     public boolean isDeclareOfficial() {
@@ -84,14 +76,6 @@ public class CliOptions {
 
     public void setTemplateFilePath(String templateFilePath) {
         this.templateFilePath = templateFilePath;
-    }
-
-    public String getNodeLabel() {
-        return nodeLabel;
-    }
-
-    public void setNodeLabel(String nodeLabel) {
-        this.nodeLabel = nodeLabel;
     }
 
     public boolean isTagLatest() {
@@ -126,20 +110,19 @@ public class CliOptions {
         isForceClean = forceClean;
     }
 
+    public List<String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(List<String> parameters) {
+        this.parameters = parameters;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CliOptions{");
-        sb.append("help=").append(help);
-        sb.append(", isDeclareOfficial=").append(isDeclareOfficial);
-        sb.append(", isClean=").append(isClean);
-        sb.append(", isForceClean=").append(isForceClean);
-        sb.append(", isRollback=").append(isRollback);
-        sb.append(", nodeLabel='").append(nodeLabel).append('\'');
-        sb.append(", isTagLatest=").append(isTagLatest);
-        sb.append(", tag='").append(tag).append('\'');
-        sb.append(", templateFilePath='").append(templateFilePath).append('\'');
-        sb.append(", logDir='").append(logDir).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return new ToStringBuilder(this).append("help", help).append("isDeclareOfficial", isDeclareOfficial).append("isClean", isClean)
+                .append("isForceClean", isForceClean).append("isTagLatest", isTagLatest).append("tag", tag)
+                .append("templateFilePath", templateFilePath).append("parameters", parameters).append("logDir", logDir).toString();
     }
+
 }

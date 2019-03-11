@@ -8,6 +8,7 @@ import com.github.howaric.docker_rapido.utils.CommonUtil;
 import com.github.howaric.docker_rapido.utils.LogUtil;
 import com.github.howaric.docker_rapido.utils.ValidatorUtil;
 import com.github.howaric.docker_rapido.utils.YamlUtil;
+import com.github.howaric.docker_rapido.yaml_model.Deploy;
 import com.github.howaric.docker_rapido.yaml_model.Node;
 import com.github.howaric.docker_rapido.yaml_model.RapidoTemplate;
 import com.github.howaric.docker_rapido.yaml_model.Service;
@@ -17,7 +18,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RapidoEngine {
 
@@ -27,11 +34,10 @@ public class RapidoEngine {
     private String imageTag;
     private Boolean isDeclaredOfficial;
     private RapidoTemplate rapidoTemplate;
-    private Boolean isRollback;
-    private String nodeLabel;
     private Boolean isClean;
     private Boolean isForceClean;
     private Boolean isTagLatest;
+    private Map<String, String> parameters;
 
     private RapidoEngine(CliOptions cliOptions) {
         initialize(cliOptions);
@@ -44,17 +50,25 @@ public class RapidoEngine {
             throw new TemplateResolveException("Failed to get template file");
         }
         try {
-            logger.info("Template yml content:\n\n{}\n", FileUtils.readFileToString(templateFile, "utf-8"));
+            logger.info("Origin template content:\n\n{}\n", FileUtils.readFileToString(templateFile, "utf-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }
         imageTag = cliOptions.getTag();
         isDeclaredOfficial = cliOptions.isDeclareOfficial();
-        isRollback = cliOptions.isRollback();
-        nodeLabel = cliOptions.getNodeLabel();
         isClean = cliOptions.isClean();
         isForceClean = cliOptions.isForceClean();
         isTagLatest = cliOptions.isTagLatest();
+        parameters = formatParameters(cliOptions.getParameters());
+    }
+
+    private static Map<String, String> formatParameters(List<String> parameters) {
+        Map<String, String> result = new HashMap<>();
+        parameters.forEach((param) -> {
+            String[] split = param.split("=");
+            result.put(split[0], split[1]);
+        });
+        return result;
     }
 
     public static void run(CliOptions cliOptions) {
@@ -62,15 +76,24 @@ public class RapidoEngine {
     }
 
     private void startRapido() {
-        /**
-         * parse file to rapidoTemplate
-         */
-        rapidoTemplate = YamlUtil.getObj(templateFile, RapidoTemplate.class);
+
+        // format and parse template file
+        String templateContent = CommonUtil.readFileContent(templateFile);
+        if (Strings.isStringEmpty(templateContent)) {
+            throw new TemplateResolveException("Read template file error");
+        }
+
+        Set<Map.Entry<String, String>> entries = parameters.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            templateContent = templateContent.replaceAll(String.format("@%s@", entry.getKey()), entry.getValue());
+        }
+
+        rapidoTemplate = YamlUtil.getObj(templateContent, RapidoTemplate.class);
         if (rapidoTemplate == null) {
             throw new TemplateResolveException("Failed to parse template to yaml bean");
         }
 
-        //logger.info("Rapido template:\n\n{}\n", CommonUtil.prettyJson(rapidoTemplate));
+        logger.info("Formatted template:\n\n{}\n", CommonUtil.prettyJson(rapidoTemplate));
 
         /**
          * basic check through hibernate validation
@@ -91,7 +114,11 @@ public class RapidoEngine {
         Map<String, Service> services = rapidoTemplate.getServices();
         Collection<Service> servicesInfo = services.values();
         for (Service service : servicesInfo) {
-            String condition = service.getDeploy().getRestart_policy().getCondition();
+            Deploy deploy = service.getDeploy();
+            if (deploy == null) {
+                continue;
+            }
+            String condition = deploy.getRestart_policy().getCondition();
             if (!RestartPolicy.isRestartPolicyLegal(condition)) {
                 throw new IllegalPolicyException(
                         "Unsupported restart policy: " + condition + ", optionals: " + RestartPolicy.supportedTypes());
@@ -107,7 +134,7 @@ public class RapidoEngine {
                 throw new TemplateResolveException("You must use official and master for official deployment");
             }
             if (Strings.isStringEmpty(imageTag)) {
-                throw new TemplateResolveException("You must specify --tag/-t for official deployment");
+                imageTag = "latest";
             }
         } else {
             if (deliveryType.isOfficial() || "master".equalsIgnoreCase(rapidoTemplate.getOwner())) {
@@ -140,7 +167,7 @@ public class RapidoEngine {
             // details
             List<Node> targetNodes = null;
             if (service.getDeploy() != null) {// target nodes
-                targetNodes = service.getDeploy().getPlacement().targetNodes(nodes, nodeLabel);
+                targetNodes = service.getDeploy().getPlacement().targetNodes(nodes);
             }
 
             if (isForceClean || (isClean && service.getBuild() != null)) {
@@ -156,7 +183,7 @@ public class RapidoEngine {
                 throw new TemplateResolveException("TargetNodes and imageTags are all empty at the same time, will do nothing");
             }
             logger.info("{} will be created or updated on following nodes:{}", serviceName, targetNodes);
-            taskHandlers.add(new DeployTaskHandler(rapidoTemplate, serviceName, targetNodes, imageTag, isRollback, isTagLatest));
+            taskHandlers.add(new DeployTaskHandler(rapidoTemplate, serviceName, targetNodes, imageTag, isTagLatest));
         }
 
         for (TaskHandler taskHandler : taskHandlers) {

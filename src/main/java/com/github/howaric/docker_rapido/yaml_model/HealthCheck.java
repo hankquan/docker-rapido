@@ -2,7 +2,7 @@ package com.github.howaric.docker_rapido.yaml_model;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-public class Healthcheck {
+public class HealthCheck {
 
     private Boolean disable = false;
 

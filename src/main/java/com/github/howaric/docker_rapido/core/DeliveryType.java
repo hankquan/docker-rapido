@@ -18,7 +18,7 @@ public enum DeliveryType {
         this.value = value;
     }
 
-    private DeliveryType(String value) {
+    DeliveryType(String value) {
         this.value = value;
     }
 
@@ -35,7 +35,7 @@ public enum DeliveryType {
         }
         return false;
     }
-    
+
     public boolean isRegression() {
         if (value.equals(REGRESSION.value)) {
             return true;
@@ -44,11 +44,14 @@ public enum DeliveryType {
     }
 
     public static DeliveryType getType(String type) {
+        if (type.startsWith("dev")) {
+            return DeliveryType.DEVELOPMENTAL;
+        }
         try {
             return DeliveryType.valueOf(type.toUpperCase());
         } catch (Exception e) {
-            throw new UnsupportedTypeException("Unsupported delivery type: " + type + " | "
-                    + Arrays.asList(OFFICIAL.value, DEVELOPMENTAL.value, REGRESSION.value), e);
+            throw new UnsupportedTypeException("Unsupported delivery type: " + type + " | " + Arrays
+                    .asList(OFFICIAL.value, DEVELOPMENTAL.value, "dev", REGRESSION.value), e);
         }
     }
 

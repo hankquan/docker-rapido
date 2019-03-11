@@ -1,9 +1,9 @@
 package com.github.howaric.docker_rapido.yaml_model;
 
-import javax.validation.constraints.Min;
-
 import com.github.howaric.docker_rapido.core.DeployPolicy;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import javax.validation.constraints.Min;
 
 public class Deploy {
 
@@ -19,7 +19,9 @@ public class Deploy {
     @Min(message = "replicas must be at least 1", value = 1)
     private Integer replicas = 1;
 
-    private Healthcheck healthcheck;
+    private HealthCheck healthcheck = new HealthCheck();
+
+    private ServiceCheck servicecheck = new ServiceCheck();
 
     public RestartPolicy getRestart_policy() {
         return restart_policy;
@@ -61,18 +63,27 @@ public class Deploy {
         this.replicas = replicas;
     }
 
-    public Healthcheck getHealthcheck() {
+    public HealthCheck getHealthcheck() {
         return healthcheck;
     }
 
-    public void setHealthcheck(Healthcheck healthcheck) {
+    public void setHealthcheck(HealthCheck healthcheck) {
         this.healthcheck = healthcheck;
+    }
+
+    public ServiceCheck getServicecheck() {
+        return servicecheck;
+    }
+
+    public void setServicecheck(ServiceCheck servicecheck) {
+        this.servicecheck = servicecheck;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this).append("placement", placement).append("deploy_policy", deploy_policy)
                 .append("stop_timeout", stop_timeout).append("restart_policy", restart_policy).append("replicas", replicas)
-                .append("healthcheck", healthcheck).toString();
+                .append("healthcheck", healthcheck).append("servicecheck", servicecheck).toString();
     }
+
 }

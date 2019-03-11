@@ -1,25 +1,24 @@
 package com.github.howaric.docker_rapido.core;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import com.github.howaric.docker_rapido.core.dto.ProcessorInfo;
 import com.github.howaric.docker_rapido.core.dto.ProcessorInfoFactory;
+import com.github.howaric.docker_rapido.docker.DockerProxy;
+import com.github.howaric.docker_rapido.docker.DockerProxyFactory;
+import com.github.howaric.docker_rapido.exceptions.IllegalImageTagsException;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
 import com.github.howaric.docker_rapido.utils.LogUtil;
+import com.github.howaric.docker_rapido.yaml_model.Deploy;
+import com.github.howaric.docker_rapido.yaml_model.Node;
+import com.github.howaric.docker_rapido.yaml_model.RapidoTemplate;
+import com.github.howaric.docker_rapido.yaml_model.Service;
 import com.google.common.base.Strings;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.howaric.docker_rapido.docker.DockerProxy;
-import com.github.howaric.docker_rapido.docker.DockerProxyFactory;
-import com.github.howaric.docker_rapido.exceptions.IllegalImageTagsException;
-import com.github.howaric.docker_rapido.yaml_model.Deploy;
-import com.github.howaric.docker_rapido.yaml_model.Node;
-import com.github.howaric.docker_rapido.yaml_model.RapidoTemplate;
-import com.github.howaric.docker_rapido.yaml_model.Service;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public class DeployTaskHandler implements TaskHandler {
 
@@ -29,18 +28,16 @@ public class DeployTaskHandler implements TaskHandler {
     private String serviceName;
     private List<Node> targetNodes;
     private String imageTag;
-    private Boolean isRollback;
     private Boolean isTagLatest;
 
     public static final String LATEST = "latest";
 
-    public DeployTaskHandler(RapidoTemplate rapidoTemplate, String serviceName, List<Node> targetNodes, String imageTag, Boolean isRollback,
+    public DeployTaskHandler(RapidoTemplate rapidoTemplate, String serviceName, List<Node> targetNodes, String imageTag,
             Boolean isTagLatest) {
         this.rapidoTemplate = rapidoTemplate;
         this.serviceName = serviceName;
         this.targetNodes = targetNodes;
         this.imageTag = imageTag;
-        this.isRollback = isRollback;
         this.isTagLatest = isTagLatest;
     }
 
@@ -56,10 +53,7 @@ public class DeployTaskHandler implements TaskHandler {
         boolean isBuildImage = false;
 
         DeliveryType deliveryType = DeliveryType.getType(rapidoTemplate.getDelivery_type());
-        if (isRollback) {
-            imageName = combineImageNameWithRepoAndTag(imageName);
-            isBuildImage = false;
-        } else if (service.getBuild() != null) {
+        if (service.getBuild() != null) {
             if (imageTag == null) {
                 if (!deliveryType.isOfficial()) {
                     imageTag = rapidoTemplate.getOwner();
@@ -125,10 +119,16 @@ public class DeployTaskHandler implements TaskHandler {
     }
 
     private String combineImageNameWithRepoAndTag(String imageName) {
+        if (rapidoTemplate.getRepository() == null) {
+            return imageName + ":" + imageTag;
+        }
         return rapidoTemplate.getRepository().repo() + "/" + imageName + ":" + imageTag;
     }
 
     private String combineImageNameWithRepo(String imageName) {
+        if (rapidoTemplate.getRepository() == null) {
+            return imageName;
+        }
         return rapidoTemplate.getRepository().repo() + "/" + imageName;
     }
 

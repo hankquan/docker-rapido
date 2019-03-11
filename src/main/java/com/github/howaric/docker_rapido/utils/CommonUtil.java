@@ -2,15 +2,24 @@ package com.github.howaric.docker_rapido.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class CommonUtil {
 
@@ -21,8 +30,16 @@ public class CommonUtil {
             File file = ResourceUtils.getFile(path);
             return file;
         } catch (Exception e) {
-            logger.error("File doesn't exist: {}", path);
-            e.printStackTrace();
+            logger.error("File doesn't exist: " + path, e);
+        }
+        return null;
+    }
+
+    public static String readFileContent(File file) {
+        try {
+            return FileUtils.readFileToString(file, "utf-8");
+        } catch (IOException e) {
+            logger.error("Failed to read file " + file.getName(), e);
         }
         return null;
     }

@@ -20,7 +20,7 @@ public class Placement {
     }
 
     // "constraints" : [ "node.name == demo-node1", "node.labels.site == Ki" ]
-    public List<Node> targetNodes(Map<String, Node> nodes, String nodeLabel) {
+    public List<Node> targetNodes(Map<String, Node> nodes) {
         List<Node> result = new ArrayList<>();
         for (String constraint : constraints) {
             String[] split = constraint.split("==");
@@ -34,7 +34,7 @@ public class Placement {
                 String label = key.substring(key.indexOf(NODE_LABELS) + NODE_LABELS.length() + 1);
                 Collection<Node> values = nodes.values();
                 for (Node node : values) {
-                    if (node.hasLabel(label, value, nodeLabel)) {
+                    if (node.hasLabel(label, value)) {
                         result.add(node);
                     }
                 }

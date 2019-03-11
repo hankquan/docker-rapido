@@ -1,13 +1,10 @@
 package com.github.howaric.docker_rapido.yaml_model;
 
-import java.util.List;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-import com.google.common.base.Strings;
+import java.util.List;
 
 public class Node {
 
@@ -26,19 +23,13 @@ public class Node {
 
     private static final String endPointTemplate = "tcp://%s:%s";
 
-    public boolean hasLabel(String key, String value, String nodeLabel) {
+    public boolean hasLabel(String key, String value) {
         if (labels == null) {
             return false;
         }
         String label = key + "=" + value;
         if (labels.contains(label)) {
-            if (!Strings.isNullOrEmpty(nodeLabel)) {
-                if (nodeLabel.equals(label)) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
+            return true;
         }
         return false;
     }

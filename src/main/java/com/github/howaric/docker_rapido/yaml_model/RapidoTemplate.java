@@ -19,10 +19,8 @@ public class RapidoTemplate {
     @NotBlank(message = "owner can not be empty")
     private String owner;
 
-    @Valid
     private Repository repository;
 
-    @NotBlank(message = "remote_docker can not be empty")
     private String remote_docker;
 
     @Valid

@@ -26,7 +26,7 @@ public class OnAbsenceDeployerProcessor extends DeployProcessor {
                 imageName.contains(DeployTaskHandler.LATEST) ? imageName.replace(DeployTaskHandler.LATEST, "") : imageName, service);
         dockerProxy.startContainer(containerId);
 
-        checkContainerStatus(containerId);
+        checkContainerStatusAfterOneMinute(containerId);
     }
 
 }

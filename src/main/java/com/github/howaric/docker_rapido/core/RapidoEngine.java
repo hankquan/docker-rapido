@@ -18,13 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RapidoEngine {
 
@@ -115,7 +109,7 @@ public class RapidoEngine {
         Collection<Service> servicesInfo = services.values();
         for (Service service : servicesInfo) {
             Deploy deploy = service.getDeploy();
-            if (deploy == null) {
+            if (deploy == null || deploy.getRestart_policy() == null) {
                 continue;
             }
             String condition = deploy.getRestart_policy().getCondition();

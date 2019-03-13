@@ -1,19 +1,21 @@
 package com.github.howaric.docker_rapido.core;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
-import com.github.howaric.docker_rapido.core.dto.ProcessorInfo;
-import com.github.howaric.docker_rapido.yaml_model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.dockerjava.api.model.Container;
+import com.github.howaric.docker_rapido.core.dto.ProcessorInfo;
 import com.github.howaric.docker_rapido.docker.DockerProxy;
 import com.github.howaric.docker_rapido.docker.DockerProxyFactory;
 import com.github.howaric.docker_rapido.utils.CommonUtil;
+import com.github.howaric.docker_rapido.yaml_model.HealthCheck;
+import com.github.howaric.docker_rapido.yaml_model.Node;
+import com.github.howaric.docker_rapido.yaml_model.Repository;
+import com.github.howaric.docker_rapido.yaml_model.Service;
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public abstract class AbstractNodeProcessor implements NodeProcessor {
 
@@ -82,12 +84,15 @@ public abstract class AbstractNodeProcessor implements NodeProcessor {
 
     protected void removeCurrentContainer() {
         Container container = current.poll();
+        if (container == null) {
+            return;
+        }
         try {
             dockerProxy.stopContainer(container.getId(), service.getDeploy().getStop_timeout());
             dockerProxy.removeContainer(container.getId());
             logger.info("Stop and remove container: " + container.getNames()[0].substring(1));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn("Error when stop/remove container: " + container.getId(), e);
         }
     }
 
